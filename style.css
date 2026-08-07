@@ -5,9 +5,9 @@
   --purple-deep: #3a1b57;
   --violet: #9b59d9;
   --orange: #ff8a00;
-  --bg: #0a0a0a;
+  --bg: #ffffff;
   --card: #ffffff;
-  --ink: #161616;
+  --ink: #1a1a1a;
   --muted: #6b6b6b;
   --border-radius: 20px;
   --max-width: 720px;
@@ -27,6 +27,21 @@ body {
   color: var(--ink);
   font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  opacity: 0;
+  animation: pageFadeIn 0.7s ease forwards;
+}
+
+@keyframes pageFadeIn {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .wrap {
@@ -39,12 +54,40 @@ body {
 
 header.hero {
   position: relative;
-  padding: 28px 0 0;
+  padding: 32px 0 60px;
   text-align: center;
-  background:
-    radial-gradient(circle at 15% 0%, rgba(230, 0, 126, 0.35), transparent 55%),
-    radial-gradient(circle at 85% 10%, rgba(91, 44, 135, 0.45), transparent 55%),
-    var(--bg);
+  background: linear-gradient(135deg, var(--purple-deep), var(--purple) 55%, var(--pink) 100%);
+}
+
+/* Vapor decorativo, sutil, tipo café recién hecho */
+.steam {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 56px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.steam path {
+  stroke: #f2eafc;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: steamRise 6s ease-in infinite;
+}
+
+.steam path:nth-child(2) { animation-delay: 1.6s; }
+.steam path:nth-child(3) { animation-delay: 3.2s; }
+
+@keyframes steamRise {
+  0% { opacity: 0; transform: translateY(8px) scaleY(0.85); }
+  18% { opacity: 0.45; }
+  72% { opacity: 0.22; }
+  100% { opacity: 0; transform: translateY(-28px) scaleY(1.15); }
 }
 
 .logo {
@@ -52,6 +95,8 @@ header.hero {
   display: block;
   margin: 0 auto 14px;
   filter: drop-shadow(0 6px 18px rgba(230, 0, 126, 0.35));
+  position: relative;
+  z-index: 1;
 }
 
 .hero-tagline {
@@ -78,12 +123,15 @@ header.hero {
 }
 
 .hero-photo {
-  margin: 0 auto;
-  max-width: var(--max-width);
+  margin: -42px auto 0;
+  max-width: calc(var(--max-width) - 36px);
+  width: calc(100% - 36px);
   aspect-ratio: 16 / 9;
-  border-radius: 0;
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
+  z-index: 2;
+  box-shadow: 0 16px 34px rgba(58, 27, 87, 0.28);
 }
 
 /* ---------- Placeholder de foto ---------- */
@@ -97,7 +145,14 @@ header.hero {
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, var(--purple-deep), var(--purple) 45%, var(--pink) 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 12s ease infinite;
   color: rgba(255, 255, 255, 0.85);
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
 }
 
 .photo-placeholder svg {
@@ -112,10 +167,6 @@ header.hero {
   letter-spacing: 0.3px;
   text-transform: uppercase;
   opacity: 0.85;
-}
-
-.hero-photo .photo-placeholder {
-  border-radius: 0;
 }
 
 .section-photo {
@@ -139,7 +190,7 @@ nav.section-nav {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 16px 18px 4px;
+  padding: 22px 18px 6px;
   scrollbar-width: none;
 }
 
@@ -151,17 +202,29 @@ nav.section-nav a {
   flex: 0 0 auto;
   padding: 7px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f2eafc;
+  border: 1.5px solid rgba(91, 44, 135, 0.16);
+  background: #fff;
+  color: var(--purple);
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 600;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(91, 44, 135, 0.06);
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 nav.section-nav a:hover {
   border-color: var(--pink-soft);
-  color: var(--pink-soft);
+  color: var(--pink);
+  box-shadow: 0 4px 12px rgba(230, 0, 126, 0.16);
+}
+
+nav.section-nav a.active {
+  background: var(--section-color, var(--pink));
+  border-color: var(--section-color, var(--pink));
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(91, 44, 135, 0.25);
 }
 
 /* ---------- Secciones ---------- */
@@ -172,6 +235,14 @@ main {
 
 section.menu-section {
   margin-top: 34px;
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+section.menu-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .section-heading {
@@ -188,6 +259,12 @@ section.menu-section {
   height: 22px;
   flex: none;
   color: var(--section-color, var(--pink));
+  transform: scale(0.5);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+section.menu-section.is-visible .section-heading svg {
+  transform: scale(1);
 }
 
 .section-heading h2 {
@@ -203,6 +280,13 @@ section.menu-section {
   border-radius: var(--border-radius);
   border: 2px solid var(--section-color, var(--pink));
   padding: 6px 20px 10px;
+  box-shadow: 0 6px 20px rgba(91, 44, 135, 0.08);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(91, 44, 135, 0.18);
 }
 
 .item {
@@ -210,12 +294,21 @@ section.menu-section {
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  padding: 13px 0;
+  padding: 13px 8px;
+  margin: 0 -8px;
+  border-radius: 12px;
   border-bottom: 1px solid #eee;
+  transition: background 0.25s ease, transform 0.25s ease;
 }
 
 .item:last-child {
   border-bottom: none;
+}
+
+.item:hover,
+.item:active {
+  background: linear-gradient(90deg, rgba(230, 0, 126, 0.06), rgba(230, 0, 126, 0));
+  transform: translateX(4px);
 }
 
 .item-text {
@@ -242,6 +335,47 @@ section.menu-section {
   font-size: 1rem;
   color: var(--ink);
   white-space: nowrap;
+  transition: color 0.25s ease;
+}
+
+.item:hover .item-price,
+.item:active .item-price {
+  color: var(--section-color, var(--pink));
+}
+
+/* ---------- Loader (shimmer) mientras carga el menú ---------- */
+
+.skeleton-section {
+  margin-top: 34px;
+}
+
+.skeleton-heading {
+  width: 42%;
+  height: 22px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.skeleton-card {
+  height: 130px;
+  border-radius: var(--border-radius);
+}
+
+.skeleton-heading,
+.skeleton-card {
+  background: linear-gradient(
+    90deg,
+    rgba(91, 44, 135, 0.07) 25%,
+    rgba(91, 44, 135, 0.16) 37%,
+    rgba(91, 44, 135, 0.07) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
 }
 
 /* ---------- Footer ---------- */
@@ -249,16 +383,16 @@ section.menu-section {
 footer {
   margin-top: 40px;
   text-align: center;
-  color: #a68fc9;
+  color: #7d6a99;
   font-size: 0.78rem;
   line-height: 1.5;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+  border-top: 1px solid rgba(91, 44, 135, 0.12);
 }
 
 footer .brand-line {
   margin-top: 8px;
-  color: #6d5a86;
+  color: #a993c7;
   font-size: 0.72rem;
 }
 

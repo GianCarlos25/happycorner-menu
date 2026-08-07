@@ -141,7 +141,56 @@ function renderHero(restaurant) {
 
 function renderNav(sections) {
   const nav = document.getElementById("section-nav");
-  nav.innerHTML = sections.map((s) => `<a href="#${s.id}">${escapeHtml(s.title)}</a>`).join("");
+  nav.innerHTML = sections.map((s, i) => {
+    const color = SECTION_COLORS[i % SECTION_COLORS.length];
+    return `<a href="#${s.id}" data-target="${s.id}" style="--section-color:${color}">${escapeHtml(s.title)}</a>`;
+  }).join("");
+}
+
+// Esqueleto animado (shimmer) que se ve un instante mientras llegan
+// los datos del Sheet, en vez de dejar la pantalla en blanco.
+function renderSkeleton() {
+  const main = document.getElementById("menu-sections");
+  main.innerHTML = Array.from({ length: 3 }).map(() => `
+    <div class="skeleton-section">
+      <div class="skeleton-heading"></div>
+      <div class="skeleton-card"></div>
+    </div>
+  `).join("");
+}
+
+// Anima la entrada de cada sección al hacer scroll y resalta en la
+// navegación cuál sección se está viendo en cada momento.
+function setupScrollAnimations(sections) {
+  const sectionEls = sections.map((s) => document.getElementById(s.id)).filter(Boolean);
+  const navLinks = Array.from(document.querySelectorAll("#section-nav a"));
+
+  if (!("IntersectionObserver" in window) || !sectionEls.length) {
+    sectionEls.forEach((el) => el.classList.add("is-visible"));
+    return;
+  }
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+
+  sectionEls.forEach((el) => revealObserver.observe(el));
+
+  const spyObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const link = navLinks.find((a) => a.dataset.target === entry.target.id);
+      if (!link || !entry.isIntersecting) return;
+      navLinks.forEach((a) => a.classList.remove("active"));
+      link.classList.add("active");
+    });
+  }, { threshold: 0, rootMargin: "-45% 0px -45% 0px" });
+
+  sectionEls.forEach((el) => spyObserver.observe(el));
 }
 
 function renderSections(sections) {
@@ -189,6 +238,7 @@ async function loadFromLocalJSON() {
 }
 
 async function init() {
+  renderSkeleton();
   try {
     let restaurant, sections, footer;
 
@@ -210,6 +260,7 @@ async function init() {
     renderNav(sections);
     renderSections(sections);
     document.getElementById("footer-text").textContent = footer;
+    setupScrollAnimations(sections);
   } catch (err) {
     document.getElementById("menu-sections").innerHTML =
       `<p style="color:#f2eafc;text-align:center;padding:40px 10px;">

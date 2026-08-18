@@ -407,9 +407,16 @@ function renderSections(sections) {
         section: section.title
       };
 
+      // Si el plato no tiene foto propia (columna "Imagen" del Sheet
+      // vacía), no reservamos hueco de imagen: tarjeta compacta, sin
+      // placeholder repetido. En cuanto le pongan una foto en el Sheet
+      // —a un plato de siempre o a uno nuevo— pasa sola a la versión
+      // con foto grande, sin tocar el código.
+      const hasPhoto = Boolean(item.image);
+
       return `
-        <article class="dish-card" data-id="${id}">
-          <div class="dish-photo">${photoBlock(item.image, item.name)}</div>
+        <article class="dish-card${hasPhoto ? "" : " no-photo"}" data-id="${id}">
+          ${hasPhoto ? `<div class="dish-photo">${photoBlock(item.image, item.name)}</div>` : ""}
           <div class="dish-content">
             <div class="dish-text">
               <h3 class="dish-name">${escapeHtml(item.name)}</h3>

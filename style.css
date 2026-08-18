@@ -288,7 +288,7 @@ section.menu-section.is-visible .section-heading svg {
 .dishes-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 @media (min-width: 640px) {
@@ -318,6 +318,12 @@ section.menu-section.is-visible .section-heading svg {
   animation: dishPulse 0.55s ease;
 }
 
+/* Plato sin foto propia todavía (columna "Imagen" vacía en el Sheet):
+   tarjeta compacta, sin hueco de imagen reservado. */
+.dish-card.no-photo .dish-content {
+  padding-top: 16px;
+}
+
 @keyframes dishPulse {
   0% { box-shadow: 0 0 0 0 rgba(230, 0, 126, 0.35), 0 6px 20px rgba(91, 44, 135, 0.08); }
   100% { box-shadow: 0 0 0 14px rgba(230, 0, 126, 0), 0 6px 20px rgba(91, 44, 135, 0.08); }
@@ -345,10 +351,10 @@ section.menu-section.is-visible .section-heading svg {
 }
 
 .dish-content {
-  padding: 14px 16px 16px;
+  padding: 13px 15px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
 }
 

@@ -36,6 +36,38 @@
   </footer>
 </div>
 
+<!-- Botón flotante + panel "Mi Selección" (modelo híbrido, sin pago: el
+     cliente arma su pedido aquí y se lo enseña/lee al camarero). -->
+<button type="button" class="cart-fab" id="cart-fab" aria-label="Ver mi selección">
+  <span class="cart-fab-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.4l2.1 11.4a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 7H6.2"/></svg>
+    <span class="cart-fab-count" id="cart-count-badge">0</span>
+  </span>
+  <span class="cart-fab-info">
+    <span class="cart-fab-label">Mi selección</span>
+    <span class="cart-fab-total" id="fab-total">0,00 €</span>
+  </span>
+</button>
+
+<div class="cart-overlay" id="cart-overlay"></div>
+
+<div class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
+  <div class="cart-drawer-handle"></div>
+  <div class="cart-drawer-header">
+    <h2 id="cart-drawer-title">Mi Selección</h2>
+    <button type="button" class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="cart-drawer-list" id="cart-items"></div>
+  <div class="cart-drawer-footer">
+    <div class="cart-drawer-total-row">
+      <span>Total</span>
+      <span id="cart-total-value">0,00 €</span>
+    </div>
+    <p class="cart-drawer-hint">Muéstrale esta pantalla al camarero para hacer tu pedido — no se paga desde aquí.</p>
+    <button type="button" class="cart-clear-btn" id="cart-clear-btn">Vaciar selección</button>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>

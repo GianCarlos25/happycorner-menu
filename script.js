@@ -43,11 +43,18 @@ const ICONS = {
   plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`
 };
 
-// Postres/Kürtőskalács conserva su foto destacada oficial. Desayunos ya
-// tiene su foto arriba del todo, en la cabecera, así que no repetimos
+// Postres/Kürtőskalács conserva su foto destacada oficial (fija, la pone
+// la agencia — la clienta no puede cambiarla desde el Sheet). Desayunos
+// ya tiene su foto arriba del todo, en la cabecera, así que no repetimos
 // una segunda dentro de la sección. Cualquier sección nueva que la
 // clienta añada tampoco lleva foto propia (para no decidir diseño por ella).
-const SECTIONS_WITH_FEATURED_PHOTO = new Set(["Postres · Kürtőskalács", "Postres", "Postres/Kürtőskalács"]);
+// OJO: esto vale tanto si el menú viene del Sheet como del menu.json local
+// — es la única fuente de verdad para estas fotos fijas.
+const KNOWN_SECTION_PHOTOS = {
+  "postres": { image: "assets/kurtoskalacs.jpg", alt: "Kürtőskalács recién hecho" },
+  "postres · kürtőskalács": { image: "assets/kurtoskalacs.jpg", alt: "Kürtőskalács recién hecho" },
+  "postres/kürtőskalács": { image: "assets/kurtoskalacs.jpg", alt: "Kürtőskalács recién hecho" }
+};
 
 function escapeHtml(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({
@@ -77,6 +84,18 @@ function parsePrice(str) {
 
 function formatPrice(n) {
   return `${n.toFixed(2).replace(".", ",")} €`;
+}
+
+// Normaliza el precio que se MUESTRA en la tarjeta, para que "3.2", "3,2 €"
+// y "3,20€" salgan siempre igual ("3,20 €"), sin importar cómo lo tecleó
+// la clienta en el Sheet. Si el precio no es un número reconocible (por
+// ejemplo "Consultar" o "Incluido"), lo dejamos tal cual lo escribió, en
+// vez de convertirlo a "0,00 €" — eso sí sería un cambio de significado.
+function formatDisplayPrice(raw) {
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed) return "";
+  const looksNumeric = /^\d+([.,]\d{1,2})?\s*€?$/.test(trimmed);
+  return looksNumeric ? formatPrice(parsePrice(trimmed)) : trimmed;
 }
 
 /* ---------- Parser de CSV sencillo (soporta comillas y comas dentro de texto) ---------- */
@@ -130,6 +149,7 @@ function sheetRowsToSections(rows) {
     if (!title || visible === "no") return;
 
     if (!byTitle.has(title)) {
+      const knownPhoto = KNOWN_SECTION_PHOTOS[title.trim().toLowerCase()];
       const section = {
         id: title
           .toLowerCase()
@@ -139,8 +159,8 @@ function sheetRowsToSections(rows) {
           .replace(/(^-|-$)/g, ""),
         title,
         icon: KNOWN_SECTION_ICONS[title.trim().toLowerCase()] || "plate",
-        featuredImage: null,
-        featuredImageAlt: SECTIONS_WITH_FEATURED_PHOTO.has(title) ? title : "",
+        featuredImage: knownPhoto ? knownPhoto.image : null,
+        featuredImageAlt: knownPhoto ? knownPhoto.alt : "",
         items: []
       };
       byTitle.set(title, section);
@@ -424,7 +444,7 @@ function renderSections(sections) {
               ${item.description ? `<p class="dish-desc">${escapeHtml(item.description)}</p>` : ""}
             </div>
             <div class="dish-actions-row">
-              <span class="dish-price">${escapeHtml(item.price)}</span>
+              <span class="dish-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
               <span class="dish-actions-slot" data-actions-for="${id}">${renderDishActions(id)}</span>
             </div>
           </div>

@@ -516,10 +516,10 @@ footer .brand-line {
   z-index: 60;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   border: none;
   border-radius: 999px;
-  padding: 11px 18px 11px 12px;
+  padding: 11px 18px 11px 14px;
   background: linear-gradient(135deg, var(--purple-deep), var(--purple) 55%, var(--pink) 100%);
   color: #fff;
   cursor: pointer;
@@ -547,6 +547,9 @@ footer .brand-line {
 .cart-fab-icon {
   position: relative;
   display: flex;
+  /* deja hueco fijo a la derecha del icono para la insignia, así el
+     texto "Mi selección" nunca puede pisarla, pase lo que pase */
+  margin-right: 6px;
 }
 
 .cart-fab-icon svg {
@@ -556,8 +559,8 @@ footer .brand-line {
 
 .cart-fab-count {
   position: absolute;
-  top: -9px;
-  right: -11px;
+  top: -8px;
+  right: -8px;
   min-width: 18px;
   height: 18px;
   padding: 0 4px;

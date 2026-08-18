@@ -59,53 +59,21 @@ header.hero {
   background: linear-gradient(135deg, var(--purple-deep), var(--purple) 55%, var(--pink) 100%);
 }
 
-/* Vapor decorativo, sutil, tipo café recién hecho */
-.steam {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 92px;
-  height: 56px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.steam path {
-  stroke: #f2eafc;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  opacity: 0;
-  animation: steamRise 6s ease-in infinite;
-}
-
-.steam path:nth-child(2) { animation-delay: 1.6s; }
-.steam path:nth-child(3) { animation-delay: 3.2s; }
-
-@keyframes steamRise {
-  0% { opacity: 0; transform: translateY(8px) scaleY(0.85); }
-  18% { opacity: 0.45; }
-  72% { opacity: 0.22; }
-  100% { opacity: 0; transform: translateY(-28px) scaleY(1.15); }
-}
-
 .logo {
-  width: 132px;
+  width: 128px;
   display: block;
-  margin: 0 auto 14px;
-  filter: drop-shadow(0 6px 18px rgba(230, 0, 126, 0.35));
+  margin: 0 auto 16px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
   position: relative;
   z-index: 1;
 }
 
 .hero-tagline {
-  color: var(--pink-soft);
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: 0.5px;
-  margin: 0 0 6px;
-  text-shadow: 0 0 22px rgba(255, 79, 168, 0.35);
+  color: #fdfaf7;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.3px;
+  margin: 0 0 8px;
 }
 
 .hero-subtitle {

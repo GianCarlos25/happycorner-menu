@@ -4,8 +4,8 @@
     "tagline": "¡Desayuna bien!",
     "subtitle": "Pide tu tostada y el café o infusión va incluido.",
     "note": "Pan de Masa Madre o Cereales · de 9:00 a 11:30h",
-    "heroImage": null,
-    "heroImageAlt": "Foto destacada de Happy Corner"
+    "heroImage": "assets/desayuno.jpg",
+    "heroImageAlt": "Desayuno de Happy Corner: tostadas, huevos revueltos, aguacate y café"
   },
   "sections": [
     {
@@ -13,7 +13,7 @@
       "title": "Desayunos",
       "icon": "toast",
       "featuredImage": null,
-      "featuredImageAlt": "Tostada de Happy Corner",
+      "featuredImageAlt": "",
       "items": [
         { "name": "Clásica", "description": "Tomate, AOVE", "price": "3,20 €" },
         { "name": "Tomate, Aguacate", "description": "AOVE", "price": "3,50 €" },
@@ -54,7 +54,7 @@
       "id": "postres",
       "title": "Postres · Kürtőskalács",
       "icon": "cone",
-      "featuredImage": null,
+      "featuredImage": "assets/kurtoskalacs.jpg",
       "featuredImageAlt": "Kürtőskalács recién hecho",
       "items": [
         { "name": "Canelita Tentación", "description": "Azúcar y canela.", "price": "4,50 €" },

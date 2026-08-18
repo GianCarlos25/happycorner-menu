@@ -43,10 +43,11 @@ const ICONS = {
   plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`
 };
 
-// Estas dos secciones conservan su foto destacada preparada en el diseño
-// original. Cualquier sección nueva que la clienta añada no lleva foto
-// propia (para no tener que decidir diseño por ella).
-const SECTIONS_WITH_FEATURED_PHOTO = new Set(["Desayunos", "Postres · Kürtőskalács", "Postres", "Postres/Kürtőskalács"]);
+// Postres/Kürtőskalács conserva su foto destacada oficial. Desayunos ya
+// tiene su foto arriba del todo, en la cabecera, así que no repetimos
+// una segunda dentro de la sección. Cualquier sección nueva que la
+// clienta añada tampoco lleva foto propia (para no decidir diseño por ella).
+const SECTIONS_WITH_FEATURED_PHOTO = new Set(["Postres · Kürtőskalács", "Postres", "Postres/Kürtőskalács"]);
 
 function escapeHtml(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({

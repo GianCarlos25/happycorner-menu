@@ -395,6 +395,124 @@ section.menu-section.is-visible .section-heading svg {
   height: 14px;
 }
 
+/* ---------- Tarjeta "flagship" con selector de sabor/topping ----------
+   Se usa solo para el producto estrella (Postres · Kürtőskalács): en vez
+   de repetir 5 tarjetas idénticas en la rejilla, se consolidan en una
+   sola tarjeta con un selector tipo pill. Reutiliza las variables de
+   color y el radio de borde del resto de tarjetas, no introduce paleta
+   nueva. */
+
+.flagship-card {
+  background: var(--card);
+  border-radius: var(--border-radius);
+  border: 1.5px solid rgba(91, 44, 135, 0.08);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(91, 44, 135, 0.14);
+}
+
+.flagship-photo {
+  aspect-ratio: 21 / 9;
+  width: 100%;
+  overflow: hidden;
+}
+
+.flagship-photo img,
+.flagship-photo .photo-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.flagship-content {
+  padding: 18px 20px 20px;
+}
+
+.flagship-name {
+  margin: 0 0 6px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.flagship-desc {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  min-height: 2.5em;
+  transition: opacity 0.2s ease;
+}
+
+.topping-label {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--section-color, var(--purple));
+}
+
+.topping-picker {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 5px;
+  margin-bottom: 18px;
+  background: rgba(91, 44, 135, 0.06);
+  border-radius: 999px;
+  scrollbar-width: none;
+}
+
+.topping-picker::-webkit-scrollbar {
+  display: none;
+}
+
+.topping-picker-indicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  height: calc(100% - 10px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  box-shadow: 0 4px 12px rgba(230, 0, 126, 0.3);
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), width 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 0;
+}
+
+.topping-chip {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--section-color, var(--purple));
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.25s ease, transform 0.15s ease;
+}
+
+.topping-chip.is-active {
+  color: #fff;
+}
+
+.topping-chip:active {
+  transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topping-picker-indicator {
+    transition: opacity 0.15s ease;
+  }
+  .flagship-desc {
+    transition: none;
+  }
+}
+
 .qty-stepper {
   display: inline-flex;
   align-items: center;

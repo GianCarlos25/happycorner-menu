@@ -73,7 +73,7 @@ const KNOWN_SECTION_PHOTOS = {
 
 // La sección de Postres es el producto estrella (Kürtőskalács): en vez de
 // pintar sus "sabores" como platos sueltos en la rejilla normal, se
-// consolidan en UNA tarjeta con un selector de sabor/topping tipo pill.
+// consolidan en UNA tarjeta con una lista de sabores seleccionable.
 // No cambia nada de los datos (siguen siendo 5 platos independientes con
 // su propio id/precio para el carrito) ni del carrito — solo cambia cómo
 // se pintan. Si el nombre de la sección cambia y deja de coincidir aquí,
@@ -82,6 +82,16 @@ const FLAGSHIP_SWITCHER_SECTIONS = new Set([
   "postres",
   "postres · kürtőskalács",
   "postres/kürtőskalács"
+]);
+
+// La sección de "Complementos" no se pinta como sección suelta en el
+// menú (no lleva pestaña propia en la navegación): se integra dentro de
+// la propia tarjeta del producto estrella, como un extra opcional, para
+// que solo aparezca junto al Kürtőskalács, no como algo independiente.
+const FLAGSHIP_EXTRAS_TITLES = new Set([
+  "complementos · kürtőskalács",
+  "complementos/kürtőskalács",
+  "complementos"
 ]);
 
 function prefersReducedMotion() {
@@ -389,9 +399,17 @@ function renderHero(restaurant) {
   document.getElementById("hero-photo").innerHTML = photoBlock(restaurant.heroImage, restaurant.heroImageAlt);
 }
 
+// Las secciones "extra" (Complementos) no llevan pestaña propia de
+// navegación — se cuelgan dentro de la tarjeta del producto al que
+// pertenecen (ver renderFlagshipCard/renderFlagshipExtras).
+function getVisibleSections(sections) {
+  return sections.filter((s) => !FLAGSHIP_EXTRAS_TITLES.has(s.title.trim().toLowerCase()));
+}
+
 function renderNav(sections) {
   const nav = document.getElementById("section-nav");
-  nav.innerHTML = sections.map((s, i) => {
+  const visibleSections = getVisibleSections(sections);
+  nav.innerHTML = visibleSections.map((s, i) => {
     const color = SECTION_COLORS[i % SECTION_COLORS.length];
     return `<a href="#${s.id}" data-target="${s.id}" style="--section-color:${color}">${escapeHtml(s.title)}</a>`;
   }).join("");
@@ -447,7 +465,16 @@ function renderSections(sections) {
   const main = document.getElementById("menu-sections");
   itemsById = {};
 
-  main.innerHTML = sections.map((section, i) => {
+  // Los "Complementos" no se pintan como sección suelta: se sacan de la
+  // lista general y se cuelgan dentro de la tarjeta del producto
+  // estrella (ver renderFlagshipCard). Si no hay ninguna sección con ese
+  // nombre, esto no cambia nada del resto del menú.
+  const extrasSection = sections.find((s) =>
+    FLAGSHIP_EXTRAS_TITLES.has(s.title.trim().toLowerCase())
+  );
+  const visibleSections = getVisibleSections(sections);
+
+  main.innerHTML = visibleSections.map((section, i) => {
     const color = SECTION_COLORS[i % SECTION_COLORS.length];
     const icon = ICONS[section.icon] || ICONS.plate;
     const showPhoto = Boolean(section.featuredImageAlt);
@@ -491,7 +518,7 @@ function renderSections(sections) {
     }).join("");
 
     const bodyHtml = isFlagship
-      ? renderFlagshipCard(section, items)
+      ? renderFlagshipCard(section, items, extrasSection)
       : `<div class="dishes-grid">${dishes}</div>`;
 
     return `
@@ -510,122 +537,117 @@ function renderSections(sections) {
   setupFlagshipSwitchers();
 }
 
-// Tarjeta única del producto estrella con selector de sabor/topping tipo
-// pill (segmented control). Cada pill sigue siendo, por debajo, uno de
-// los platos normales de la sección (mismo id `${section.id}__${idx}`,
-// mismo precio, mismo carrito) — solo se agrupan visualmente en una
-// tarjeta en vez de repetirse 5 veces en la rejilla.
-function renderFlagshipCard(section, items) {
+// Tarjeta única del producto estrella con la lista de sabores (antes era
+// un selector tipo pill que se cortaba con nombres largos o muchas
+// opciones — una lista vertical no tiene ese problema, sea cual sea el
+// número de sabores o el tamaño de pantalla). Cada fila sigue siendo,
+// por debajo, uno de los platos normales de la sección (mismo id
+// `${section.id}__${idx}`, mismo precio, mismo carrito) — solo se
+// agrupan visualmente en una tarjeta en vez de repetirse en la rejilla.
+function renderFlagshipCard(section, items, extrasSection) {
   const first = items[0];
   const firstId = `${section.id}__0`;
   const photo = section.featuredImage
     ? `<div class="flagship-photo">${photoBlock(section.featuredImage, section.featuredImageAlt)}</div>`
     : "";
 
-  const chips = items.map((item, idx) => {
+  const rows = items.map((item, idx) => {
     const id = `${section.id}__${idx}`;
     return `
       <button
         type="button"
-        class="topping-chip${idx === 0 ? " is-active" : ""}"
-        role="tab"
-        aria-selected="${idx === 0 ? "true" : "false"}"
+        class="flavor-row${idx === 0 ? " is-active" : ""}"
+        role="radio"
+        aria-checked="${idx === 0 ? "true" : "false"}"
         data-id="${id}"
-        data-name="${escapeHtml(item.name)}"
-        data-desc="${escapeHtml(item.description || "")}"
         data-price-display="${escapeHtml(formatDisplayPrice(item.price))}"
-      >${escapeHtml(item.name)}</button>`;
+      >
+        <span class="flavor-row-dot" aria-hidden="true"></span>
+        <span class="flavor-row-body">
+          <span class="flavor-row-name">${escapeHtml(item.name)}</span>
+          ${item.description ? `<span class="flavor-row-desc">${escapeHtml(item.description)}</span>` : ""}
+        </span>
+        <span class="flavor-row-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
+      </button>`;
   }).join("");
+
+  const extrasHtml = extrasSection ? renderFlagshipExtras(extrasSection) : "";
 
   return `
     <article class="flagship-card">
       ${photo}
       <div class="flagship-content">
         <h3 class="flagship-name">${escapeHtml(section.title.split("·").pop().split("/").pop().trim())}</h3>
-        <p class="flagship-desc" data-flagship-desc>${escapeHtml(first.description || "")}</p>
 
         <p class="topping-label">Elige tu sabor</p>
-        <div class="topping-picker" role="tablist" aria-label="Elige tu sabor" data-topping-picker>
-          <div class="topping-picker-indicator" data-topping-indicator aria-hidden="true"></div>
-          ${chips}
+        <div class="flavor-list" role="radiogroup" aria-label="Elige tu sabor" data-flavor-list>
+          ${rows}
         </div>
 
         <div class="dish-actions-row">
           <span class="dish-price" data-flagship-price>${escapeHtml(formatDisplayPrice(first.price))}</span>
           <span class="dish-actions-slot" data-actions-for="${firstId}">${renderDishActions(firstId)}</span>
         </div>
+
+        ${extrasHtml}
       </div>
     </article>`;
 }
 
-// Interacción del selector de sabor: mueve el indicador deslizante al
-// chip pulsado (misma curva que el resto de transiciones del sitio) y
-// hace un fundido corto de texto/precio en vez de un salto seco. Respeta
-// prefers-reduced-motion (definido en CSS: el indicador solo cambia de
-// opacidad, sin desplazamiento). No inventa carrito propio: al cambiar de
-// sabor, simplemente apunta el slot de acciones al id de ESE sabor y
-// reutiliza renderDishActions(), que ya sabe si ese sabor concreto está
-// en la selección o no.
+// Complementos (Fresa, Plátano...) integrados dentro de la propia tarjeta
+// del producto estrella: cada uno sigue siendo un plato normal e
+// independiente en datos/carrito (con su propio id, precio y botón
+// Añadir/contador), solo que visualmente aparecen aquí en vez de tener
+// su propia sección con pestaña en la navegación.
+function renderFlagshipExtras(extrasSection) {
+  const cards = (extrasSection.items || []).map((item, idx) => {
+    const id = `${extrasSection.id}__${idx}`;
+    itemsById[id] = {
+      name: item.name,
+      price: parsePrice(item.price),
+      section: extrasSection.title
+    };
+    return `
+      <div class="extra-card" data-id="${id}">
+        <span class="extra-card-name">${escapeHtml(item.name)}</span>
+        <span class="extra-card-row">
+          <span class="extra-card-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
+          <span class="dish-actions-slot" data-actions-for="${id}">${renderDishActions(id)}</span>
+        </span>
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="flagship-extras">
+      <p class="topping-label">Complementos (opcional)</p>
+      <div class="extras-grid">${cards}</div>
+    </div>`;
+}
+
+// Interacción de la lista de sabores: pulsar una fila la marca como
+// activa (radio relleno + fondo teñido), y actualiza el precio y el
+// botón Añadir/contador de ESE sabor concreto — sin animaciones de
+// posición ni medidas de geometría, así que no hay nada que se pueda
+// "cortar" al cambiar de tamaño de pantalla o de idioma.
 function setupFlagshipSwitchers() {
-  document.querySelectorAll("[data-topping-picker]").forEach((picker) => {
-    const indicator = picker.querySelector("[data-topping-indicator]");
-    const chips = Array.from(picker.querySelectorAll(".topping-chip"));
-    const card = picker.closest(".flagship-card");
-    const descEl = card.querySelector("[data-flagship-desc]");
+  document.querySelectorAll("[data-flavor-list]").forEach((list) => {
+    const rows = Array.from(list.querySelectorAll(".flavor-row"));
+    const card = list.closest(".flagship-card");
     const priceEl = card.querySelector("[data-flagship-price]");
     const actionsSlot = card.querySelector(".dish-actions-slot");
 
-    function moveIndicator(chip, animate) {
-      const pRect = picker.getBoundingClientRect();
-      const cRect = chip.getBoundingClientRect();
-      if (!animate) indicator.style.transition = "none";
-      indicator.style.width = `${cRect.width}px`;
-      indicator.style.transform = `translateX(${cRect.left - pRect.left - 5}px)`;
-      if (!animate) {
-        // Fuerza el reflow antes de devolver la transición normal, para
-        // que este primer posicionado nunca se anime desde 0.
-        void indicator.offsetWidth;
-        indicator.style.transition = "";
-      }
+    function selectRow(row) {
+      if (row.classList.contains("is-active")) return;
+      rows.forEach((r) => { r.classList.remove("is-active"); r.setAttribute("aria-checked", "false"); });
+      row.classList.add("is-active");
+      row.setAttribute("aria-checked", "true");
+
+      priceEl.textContent = row.dataset.priceDisplay;
+      actionsSlot.dataset.actionsFor = row.dataset.id;
+      actionsSlot.innerHTML = renderDishActions(row.dataset.id);
     }
 
-    function selectChip(chip) {
-      if (chip.classList.contains("is-active")) return;
-      chips.forEach((c) => { c.classList.remove("is-active"); c.setAttribute("aria-selected", "false"); });
-      chip.classList.add("is-active");
-      chip.setAttribute("aria-selected", "true");
-      moveIndicator(chip, true);
-
-      // El chip pulsado siempre queda totalmente visible dentro del
-      // selector (antes se podía quedar cortado a un lado si el picker
-      // estaba desplazado). "nearest"/"nearest" evita que además salte
-      // la página entera hacia ese punto.
-      if (typeof chip.scrollIntoView === "function") {
-        chip.scrollIntoView({
-          behavior: prefersReducedMotion() ? "auto" : "smooth",
-          block: "nearest",
-          inline: "nearest"
-        });
-      }
-
-      descEl.style.opacity = "0";
-      window.setTimeout(() => {
-        descEl.textContent = chip.dataset.desc;
-        priceEl.textContent = chip.dataset.priceDisplay;
-        descEl.style.opacity = "1";
-      }, 120);
-
-      actionsSlot.dataset.actionsFor = chip.dataset.id;
-      actionsSlot.innerHTML = renderDishActions(chip.dataset.id);
-    }
-
-    chips.forEach((chip) => chip.addEventListener("click", () => selectChip(chip)));
-    window.addEventListener("resize", () => {
-      const active = picker.querySelector(".topping-chip.is-active");
-      if (active) moveIndicator(active, false);
-    });
-
-    moveIndicator(chips[0], false);
+    rows.forEach((row) => row.addEventListener("click", () => selectRow(row)));
   });
 }
 

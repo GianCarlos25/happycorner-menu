@@ -11,11 +11,17 @@
      sobre blanco (el ff8a00 puro pierde contraste en texto pequeño). */
   --orange-deep: #d97400;
 
-  /* Paleta cálida/tierra para fondos grandes (cabecera, placeholders,
-     botón flotante del carrito) — tono cafetería seria, no discoteca. */
+  /* Paleta cálida/tierra para fondos grandes (placeholders, botón
+     flotante del carrito) — tono cafetería seria, no discoteca. */
   --coffee-deep: #3d2b23;
   --coffee: #8a5a3f;
   --warm-glow: rgba(243, 228, 211, 0.28);
+
+  /* Amarillo fuerte de la cabecera — el cuarto color de marca, reservado
+     solo para ese fondo, para que siga siendo un golpe de color y no se
+     diluya usándolo en todas partes. */
+  --yellow: #ffc531;
+  --yellow-deep: #f2a900;
 
   --bg: #ffffff;
   --card: #ffffff;
@@ -72,45 +78,91 @@ body {
 
 header.hero {
   position: relative;
-  padding: 32px 0 60px;
+  padding: 40px 0 60px;
   text-align: center;
-  /* Base cálida/tierra, seria — el rosa de marca queda reservado para
-     precios, botones y el FAB, no para fondos grandes. */
-  background:
-    radial-gradient(circle at 88% 105%, var(--warm-glow), transparent 55%),
-    linear-gradient(160deg, var(--coffee-deep) 0%, var(--coffee) 75%, var(--coffee) 100%);
+  overflow: hidden;
+  /* Amarillo fuerte y sólido — la cabecera es el golpe de color de la
+     marca; el resto de la web se queda neutro para que esto respire. */
+  background: var(--yellow);
+}
+
+/* Manchas decorativas con los 3 colores del logo, flotando muy despacio
+   detrás del logo — le dan vida a la cabecera sin distraer del texto.
+   Grandes, difuminadas y de baja opacidad: se notan, no se leen. */
+header.hero::before,
+header.hero::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+}
+
+header.hero::before {
+  top: -90px;
+  left: -60px;
+  background: var(--pink);
+  animation: heroBlobFloat 9s ease-in-out infinite;
+}
+
+header.hero::after {
+  bottom: -110px;
+  right: -70px;
+  background: var(--purple);
+  animation: heroBlobFloat 11s ease-in-out infinite reverse;
+}
+
+@keyframes heroBlobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, 18px) scale(1.12); }
 }
 
 .logo {
   width: 128px;
   display: block;
   margin: 0 auto 16px;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
+  filter: drop-shadow(0 6px 14px rgba(61, 43, 35, 0.25));
   position: relative;
   z-index: 1;
+  animation: logoPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes logoPop {
+  from { opacity: 0; transform: scale(0.8) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .hero-tagline {
   font-family: var(--font-display);
-  color: #fdfaf7;
+  color: var(--coffee-deep);
   font-weight: 600;
   font-size: 1.5rem;
   letter-spacing: 0.2px;
   margin: 0 0 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-subtitle {
-  color: #f2eafc;
+  color: #4a3420;
   font-size: 0.98rem;
   margin: 0 auto 4px;
   max-width: 480px;
   line-height: 1.4;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-note {
-  color: #b9a6d6;
+  color: #6b4f30;
   font-size: 0.82rem;
   margin: 0 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-photo {
@@ -122,7 +174,14 @@ header.hero {
   overflow: hidden;
   position: relative;
   z-index: 2;
-  box-shadow: 0 16px 34px rgba(58, 27, 87, 0.28);
+  box-shadow: 0 16px 34px rgba(61, 43, 35, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header.hero::before,
+  header.hero::after {
+    animation: none;
+  }
 }
 
 /* ---------- Placeholder de foto ---------- */
@@ -446,15 +505,6 @@ section.menu-section.is-visible .section-heading .fa-icon {
   color: var(--ink);
 }
 
-.flagship-desc {
-  margin: 0 0 16px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.4;
-  min-height: 2.5em;
-  transition: opacity 0.2s ease;
-}
-
 .topping-label {
   margin: 0 0 8px;
   font-size: 0.7rem;
@@ -464,81 +514,165 @@ section.menu-section.is-visible .section-heading .fa-icon {
   color: var(--section-color, var(--purple));
 }
 
-.topping-picker {
-  position: relative;
+/* Lista de sabores — fila a fila, sin scroll horizontal ni geometría que
+   pueda "cortarse": cada fila es un botón de ancho completo, con un
+   radio a la izquierda, nombre + descripción en el medio, y precio a la
+   derecha. Escala igual de bien con 2 sabores que con 10. */
+.flavor-list {
   display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  padding: 5px;
-  margin-bottom: 18px;
-  background: rgba(91, 44, 135, 0.06);
-  border-radius: 999px;
-  scrollbar-width: none;
-  /* Pista visual de que hay más sabores a los lados: un desvanecido en
-     los bordes en vez de un corte seco, para que no parezca que el
-     último chip está "roto". */
-  -webkit-mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
-  mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
+  flex-direction: column;
+  border: 1.5px solid rgba(91, 44, 135, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
 }
 
-.topping-picker::-webkit-scrollbar {
-  display: none;
-}
-
-.topping-picker-indicator {
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  height: calc(100% - 10px);
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--pink), var(--purple));
-  box-shadow: 0 4px 12px rgba(230, 0, 126, 0.3);
-  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), width 0.38s cubic-bezier(0.32, 0.72, 0, 1);
-  z-index: 0;
-}
-
-.topping-chip {
-  position: relative;
-  z-index: 1;
-  flex: 0 0 auto;
+.flavor-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   border: none;
-  background: transparent;
-  padding: 9px 16px;
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--section-color, var(--purple));
+  border-bottom: 1px solid rgba(91, 44, 135, 0.1);
+  background: #fff;
+  padding: 12px 14px;
+  text-align: left;
   cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.25s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+  transition: background 0.2s ease;
 }
 
-.topping-chip.is-active {
-  color: #fff;
+.flavor-row:last-child {
+  border-bottom: none;
 }
 
-.topping-chip:active {
-  transform: scale(0.94);
+.flavor-row:hover {
+  background: rgba(91, 44, 135, 0.05);
 }
 
-/* Anillo de foco propio (solo con teclado) en vez del contorno azul
-   por defecto del navegador, que no pega con el resto de la interfaz. */
-.topping-chip:focus {
+.flavor-row:active {
+  transform: scale(0.995);
+}
+
+.flavor-row.is-active {
+  background: rgba(91, 44, 135, 0.07);
+}
+
+.flavor-row:focus {
   outline: none;
 }
 
-.topping-chip:focus-visible {
-  box-shadow: 0 0 0 3px rgba(91, 44, 135, 0.35);
+.flavor-row:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(91, 44, 135, 0.4);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .topping-picker-indicator {
-    transition: opacity 0.15s ease;
+.flavor-row-dot {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(91, 44, 135, 0.3);
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.flavor-row-dot::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.flavor-row.is-active .flavor-row-dot {
+  border-color: var(--purple);
+}
+
+.flavor-row.is-active .flavor-row-dot::after {
+  transform: scale(1);
+}
+
+.flavor-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.flavor-row-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.flavor-row-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.flavor-row-price {
+  flex: none;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--section-color, var(--purple));
+  white-space: nowrap;
+}
+
+/* Complementos integrados: mismo lenguaje visual que el resto de
+   tarjetas (fondo suave, botón Añadir en gradiente), pero en miniatura
+   dentro de la tarjeta del producto estrella. */
+.flagship-extras {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(91, 44, 135, 0.15);
+}
+
+.extras-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 420px) {
+  .extras-grid {
+    grid-template-columns: 1fr;
   }
-  .flagship-desc {
-    transition: none;
-  }
+}
+
+.extra-card {
+  background: rgba(91, 44, 135, 0.04);
+  border: 1px solid rgba(91, 44, 135, 0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.extra-card-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+
+.extra-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.extra-card-price {
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--section-color, var(--purple));
+  white-space: nowrap;
 }
 
 .qty-stepper {

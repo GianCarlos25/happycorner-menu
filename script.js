@@ -483,6 +483,15 @@ function renderSections(sections) {
     const isFlagship =
       FLAGSHIP_SWITCHER_SECTIONS.has(section.title.trim().toLowerCase()) && items.length > 1;
 
+    // Secciones sin ninguna foto (bebidas, bocadillos...) se leen mejor
+    // como una lista compacta de "escaneo rápido" (nombre a la izquierda,
+    // precio a la derecha) que como una rejilla de tarjetas con hueco de
+    // imagen vacío — mismo patrón que ya usábamos para el selector de
+    // sabores, aplicado aquí para que secciones largas no se sientan como
+    // una lista interminable de cajas iguales. En cuanto una sección
+    // tenga UNA foto, sigue usando la rejilla de tarjetas de siempre.
+    const isQuickList = !isFlagship && items.length > 0 && items.every((item) => !item.image);
+
     // Se rellena itemsById para TODOS los platos igual que siempre —
     // el selector de sabor de más abajo reutiliza estos mismos ids, no
     // crea ningún dato ni lógica de carrito nueva.
@@ -493,6 +502,20 @@ function renderSections(sections) {
         price: parsePrice(item.price),
         section: section.title
       };
+
+      if (isQuickList) {
+        return `
+          <div class="quick-row" data-id="${id}">
+            <span class="quick-row-body">
+              <span class="quick-row-name">${escapeHtml(item.name)}</span>
+              ${item.description ? `<span class="quick-row-desc">${escapeHtml(item.description)}</span>` : ""}
+            </span>
+            <span class="quick-row-end">
+              <span class="quick-row-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
+              <span class="dish-actions-slot" data-actions-for="${id}">${renderDishActions(id)}</span>
+            </span>
+          </div>`;
+      }
 
       // Si el plato no tiene foto propia (columna "Imagen" del Sheet
       // vacía), no reservamos hueco de imagen: tarjeta compacta, sin
@@ -519,7 +542,7 @@ function renderSections(sections) {
 
     const bodyHtml = isFlagship
       ? renderFlagshipCard(section, items, extrasSection)
-      : `<div class="dishes-grid">${dishes}</div>`;
+      : `<div class="${isQuickList ? "quick-list" : "dishes-grid"}">${dishes}</div>`;
 
     return `
       <section class="menu-section" id="${escapeHtml(section.id)}" style="--section-color:${color}">

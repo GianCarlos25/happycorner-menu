@@ -7,6 +7,9 @@
   --purple-deep: #3a1b57;
   --violet: #9b59d9;
   --orange: #ff8a00;
+  /* Versión un pelín más oscura del naranja del logo, para texto/iconos
+     sobre blanco (el ff8a00 puro pierde contraste en texto pequeño). */
+  --orange-deep: #d97400;
 
   /* Paleta cálida/tierra para fondos grandes (cabecera, placeholders,
      botón flotante del carrito) — tono cafetería seria, no discoteca. */
@@ -20,6 +23,12 @@
   --muted: #6b6b6b;
   --border-radius: 20px;
   --max-width: 720px;
+
+  /* Fredoka para títulos (redondeada, con carácter, a juego con el
+     logo); el texto de cuerpo se queda en la fuente de sistema neutra
+     de siempre, para no perder legibilidad en descripciones largas. */
+  --font-display: "Fredoka", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -34,7 +43,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   opacity: 0;
   animation: pageFadeIn 0.7s ease forwards;
@@ -82,10 +91,11 @@ header.hero {
 }
 
 .hero-tagline {
+  font-family: var(--font-display);
   color: #fdfaf7;
-  font-weight: 700;
-  font-size: 1.4rem;
-  letter-spacing: 0.3px;
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: 0.2px;
   margin: 0 0 8px;
 }
 
@@ -136,15 +146,16 @@ header.hero {
   50% { background-position: 100% 100%; }
 }
 
-.photo-placeholder svg {
-  width: 34px;
-  height: 34px;
+.photo-placeholder .fa-icon {
+  font-size: 34px;
+  line-height: 1;
   opacity: 0.85;
 }
 
 .photo-placeholder span {
+  font-family: var(--font-display);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.3px;
   text-transform: uppercase;
   opacity: 0.85;
@@ -195,11 +206,12 @@ nav.section-nav a {
   background: #fff;
   color: var(--purple);
   text-decoration: none;
+  font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 600;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(91, 44, 135, 0.06);
-  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
 }
 
 nav.section-nav a:hover {
@@ -243,23 +255,24 @@ section.menu-section.is-visible {
   border-bottom: 2px solid var(--section-color, var(--pink));
 }
 
-.section-heading svg {
-  width: 22px;
-  height: 22px;
+.section-heading .fa-icon {
+  font-size: 22px;
+  line-height: 1;
   flex: none;
   color: var(--section-color, var(--pink));
   transform: scale(0.5);
   transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-section.menu-section.is-visible .section-heading svg {
+section.menu-section.is-visible .section-heading .fa-icon {
   transform: scale(1);
 }
 
 .section-heading h2 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--section-color, var(--pink));
   letter-spacing: 0.2px;
 }
@@ -322,9 +335,8 @@ section.menu-section.is-visible .section-heading svg {
   height: 100%;
 }
 
-.dish-photo .photo-placeholder svg {
-  width: 26px;
-  height: 26px;
+.dish-photo .photo-placeholder .fa-icon {
+  font-size: 26px;
 }
 
 .dish-photo .photo-placeholder span {
@@ -341,8 +353,9 @@ section.menu-section.is-visible .section-heading svg {
 
 .dish-name {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
   color: var(--ink);
   line-height: 1.3;
 }
@@ -390,9 +403,8 @@ section.menu-section.is-visible .section-heading svg {
   box-shadow: 0 8px 18px rgba(230, 0, 126, 0.4);
 }
 
-.add-btn svg {
-  width: 14px;
-  height: 14px;
+.add-btn .fa-icon {
+  font-size: 13px;
 }
 
 /* ---------- Tarjeta "flagship" con selector de sabor/topping ----------
@@ -428,8 +440,9 @@ section.menu-section.is-visible .section-heading svg {
 
 .flagship-name {
   margin: 0 0 6px;
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -461,6 +474,11 @@ section.menu-section.is-visible .section-heading svg {
   background: rgba(91, 44, 135, 0.06);
   border-radius: 999px;
   scrollbar-width: none;
+  /* Pista visual de que hay más sabores a los lados: un desvanecido en
+     los bordes en vez de un corte seco, para que no parezca que el
+     último chip está "roto". */
+  -webkit-mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
 }
 
 .topping-picker::-webkit-scrollbar {
@@ -487,13 +505,13 @@ section.menu-section.is-visible .section-heading svg {
   background: transparent;
   padding: 9px 16px;
   border-radius: 999px;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--section-color, var(--purple));
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.25s ease, transform 0.15s ease;
+  transition: color 0.25s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .topping-chip.is-active {
@@ -502,6 +520,16 @@ section.menu-section.is-visible .section-heading svg {
 
 .topping-chip:active {
   transform: scale(0.94);
+}
+
+/* Anillo de foco propio (solo con teclado) en vez del contorno azul
+   por defecto del navegador, que no pega con el resto de la interfaz. */
+.topping-chip:focus {
+  outline: none;
+}
+
+.topping-chip:focus-visible {
+  box-shadow: 0 0 0 3px rgba(91, 44, 135, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -651,9 +679,8 @@ footer .brand-line {
   margin-right: 6px;
 }
 
-.cart-fab-icon svg {
-  width: 21px;
-  height: 21px;
+.cart-fab-icon .fa-icon {
+  font-size: 19px;
 }
 
 .cart-fab-count {
@@ -682,6 +709,7 @@ footer .brand-line {
 }
 
 .cart-fab-label {
+  font-family: var(--font-display);
   font-size: 0.66rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -751,12 +779,16 @@ footer .brand-line {
 
 .cart-drawer-header h2 {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
   color: var(--purple);
 }
 
 .cart-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: #f2eafc;
   color: var(--purple);
@@ -764,7 +796,7 @@ footer .brand-line {
   height: 30px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .cart-drawer-list {

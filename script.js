@@ -19,7 +19,9 @@ const CART_STORAGE_KEY = "happycorner_cart_v1";
 
 // El color de cada sección alterna automáticamente según su posición,
 // igual que en la carta impresa — nunca hace falta tocar el diseño.
-const SECTION_COLORS = ["#e6007e", "#5b2c87"];
+// Los 3 colores son, a propósito, los 3 colores del logo (rosa, morado,
+// naranja de la sonrisa), para que la web se sienta más "de la marca".
+const SECTION_COLORS = ["#e6007e", "#5b2c87", "#e07200"];
 
 // Icono conocido para las secciones originales. Cualquier sección nueva
 // que se añada desde el Sheet (con un nombre distinto) recibe el icono
@@ -30,17 +32,30 @@ const KNOWN_SECTION_ICONS = {
   "picoteo": "share",
   "postres": "cone",
   "postres · kürtőskalács": "cone",
-  "postres/kürtőskalács": "cone"
+  "postres/kürtőskalács": "cone",
+  "complementos · kürtőskalács": "fruit",
+  "complementos/kürtőskalács": "fruit",
+  "bebidas con alcohol": "beer",
+  "bebidas sin alcohol": "drink",
+  "bocadillos": "sandwich"
 };
 
+// Iconos Font Awesome (vía CDN, cargado en index.html) en vez de SVG
+// dibujados a mano. La clase "fa-icon" es la que engancha con el tamaño
+// y color definidos en style.css (los mismos sitios de siempre: cabecera
+// de sección, botón "Añadir", placeholder de foto, carrito).
 const ICONS = {
-  toast: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a8 8 0 0 1 16 0v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7Z"/><path d="M9 6.5C9 4 12 4 12 2c0 2 3 2 3 4.5"/></svg>`,
-  star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.8L12 3.5Z"/></svg>`,
-  share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="2.3"/><circle cx="17" cy="6" r="2.3"/><circle cx="17" cy="18" r="2.3"/><path d="M9 10.8 15 7.2M9 13.2l6 3.6"/></svg>`,
-  cone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3.5c1 1.4 1.4 2.6.6 3.7-1 1.3-.4 2.6.7 3.1-1.2.4-1.6 1.7-.7 3 .9 1.2.5 2.5-.6 3.7"/><path d="M8 18h8l-1.6 2.7a2 2 0 0 1-1.7 1H11.3a2 2 0 0 1-1.7-1L8 18Z"/></svg>`,
-  plate: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>`,
-  camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="12.5" r="3.4"/></svg>`,
-  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`
+  toast: `<i class="fa-solid fa-bread-slice fa-icon" aria-hidden="true"></i>`,
+  star: `<i class="fa-solid fa-star fa-icon" aria-hidden="true"></i>`,
+  share: `<i class="fa-solid fa-utensils fa-icon" aria-hidden="true"></i>`,
+  cone: `<i class="fa-solid fa-ice-cream fa-icon" aria-hidden="true"></i>`,
+  fruit: `<i class="fa-solid fa-apple-whole fa-icon" aria-hidden="true"></i>`,
+  beer: `<i class="fa-solid fa-beer-mug-empty fa-icon" aria-hidden="true"></i>`,
+  drink: `<i class="fa-solid fa-glass-water fa-icon" aria-hidden="true"></i>`,
+  sandwich: `<i class="fa-solid fa-hotdog fa-icon" aria-hidden="true"></i>`,
+  plate: `<i class="fa-solid fa-bowl-food fa-icon" aria-hidden="true"></i>`,
+  camera: `<i class="fa-solid fa-camera fa-icon" aria-hidden="true"></i>`,
+  plus: `<i class="fa-solid fa-plus fa-icon" aria-hidden="true"></i>`
 };
 
 // Postres/Kürtőskalács conserva su foto destacada oficial (fija, la pone
@@ -68,6 +83,10 @@ const FLAGSHIP_SWITCHER_SECTIONS = new Set([
   "postres · kürtőskalács",
   "postres/kürtőskalács"
 ]);
+
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 function escapeHtml(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({
@@ -576,6 +595,18 @@ function setupFlagshipSwitchers() {
       chip.classList.add("is-active");
       chip.setAttribute("aria-selected", "true");
       moveIndicator(chip, true);
+
+      // El chip pulsado siempre queda totalmente visible dentro del
+      // selector (antes se podía quedar cortado a un lado si el picker
+      // estaba desplazado). "nearest"/"nearest" evita que además salte
+      // la página entera hacia ese punto.
+      if (typeof chip.scrollIntoView === "function") {
+        chip.scrollIntoView({
+          behavior: prefersReducedMotion() ? "auto" : "smooth",
+          block: "nearest",
+          inline: "nearest"
+        });
+      }
 
       descEl.style.opacity = "0";
       window.setTimeout(() => {

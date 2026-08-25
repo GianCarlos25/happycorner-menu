@@ -18,6 +18,18 @@
 <meta name="twitter:card" content="summary_large_image" />
 
 <link rel="icon" href="assets/logo.png" />
+
+<!-- Tipografía: Fredoka para títulos (redondeada, con carácter, a juego
+     con el logo) + una fuente de sistema neutra para el texto de cuerpo,
+     para no perder legibilidad en descripciones largas. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Iconos: Font Awesome (gratis, vía CDN) en vez de los SVG genéricos
+     dibujados a mano — mismo criterio en toda la web. -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -47,7 +59,7 @@
      cliente arma su pedido aquí y se lo enseña/lee al camarero). -->
 <button type="button" class="cart-fab" id="cart-fab" aria-label="Ver mi selección">
   <span class="cart-fab-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.4l2.1 11.4a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 7H6.2"/></svg>
+    <i class="fa-solid fa-bag-shopping fa-icon" aria-hidden="true"></i>
     <span class="cart-fab-count" id="cart-count-badge">0</span>
   </span>
   <span class="cart-fab-info">
@@ -62,7 +74,7 @@
   <div class="cart-drawer-handle"></div>
   <div class="cart-drawer-header">
     <h2 id="cart-drawer-title">Mi Selección</h2>
-    <button type="button" class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar">✕</button>
+    <button type="button" class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar"><i class="fa-solid fa-xmark fa-icon" aria-hidden="true"></i></button>
   </div>
   <div class="cart-drawer-list" id="cart-items"></div>
   <div class="cart-drawer-footer">

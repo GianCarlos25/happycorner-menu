@@ -65,6 +65,19 @@
       ]
     },
     {
+      "id": "complementos-kurtoskalacs",
+      "title": "Complementos · Kürtőskalács",
+      "icon": "fruit",
+      "featuredImage": null,
+      "featuredImageAlt": "",
+      "items": [
+        { "name": "Fresa", "description": "", "price": "Consultar" },
+        { "name": "Plátano", "description": "", "price": "Consultar" },
+        { "name": "Kiwi", "description": "", "price": "Consultar" },
+        { "name": "Frutos del bosque", "description": "", "price": "Consultar" }
+      ]
+    },
+    {
       "id": "bebidas-con-alcohol",
       "title": "Bebidas con alcohol",
       "icon": "plate",

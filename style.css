@@ -293,12 +293,13 @@ header.hero::after {
 }
 
 .hero-wave svg {
-  display: block;
-  width: 100%;
-  height: 70px;
-  fill: var(--bg);
+    display: block;
+    width: calc(100% + 2px);
+    height: clamp(75px, 5vw, 100px); 
+    fill: var(--bg);
+    /* Añade esta línea: */
+    transform: rotate(180deg); 
 }
-
 @media (prefers-reduced-motion: reduce) {
   header.hero::before,
   header.hero::after {

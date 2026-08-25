@@ -406,12 +406,30 @@ function getVisibleSections(sections) {
   return sections.filter((s) => !FLAGSHIP_EXTRAS_TITLES.has(s.title.trim().toLowerCase()));
 }
 
+// Miniatura de una categoría para el selector de navegación: usa la foto
+// de portada de la sección si existe, si no la del primer plato que sí
+// tenga foto (columna "Imagen" del Sheet) y, si ninguno tiene, cae en un
+// círculo con el icono de la sección — nunca queda un hueco vacío.
+function getSectionThumb(section) {
+  if (section.featuredImage) return section.featuredImage;
+  const withPhoto = (section.items || []).find((it) => it.image);
+  return withPhoto ? withPhoto.image : null;
+}
+
 function renderNav(sections) {
   const nav = document.getElementById("section-nav");
   const visibleSections = getVisibleSections(sections);
   nav.innerHTML = visibleSections.map((s, i) => {
     const color = SECTION_COLORS[i % SECTION_COLORS.length];
-    return `<a href="#${s.id}" data-target="${s.id}" style="--section-color:${color}">${escapeHtml(s.title)}</a>`;
+    const thumb = getSectionThumb(s);
+    const media = thumb
+      ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy" />`
+      : `<span class="cat-btn-icon">${ICONS[s.icon] || ICONS.plate}</span>`;
+    return `
+      <button type="button" class="cat-btn" data-target="${s.id}" style="--section-color:${color}">
+        <span class="cat-btn-thumb">${media}</span>
+        <span class="cat-btn-label">${escapeHtml(s.title)}</span>
+      </button>`;
   }).join("");
 }
 
@@ -427,38 +445,42 @@ function renderSkeleton() {
   `).join("");
 }
 
-// Anima la entrada de cada sección al hacer scroll y resalta en la
-// navegación cuál sección se está viendo en cada momento.
-function setupScrollAnimations(sections) {
-  const sectionEls = sections.map((s) => document.getElementById(s.id)).filter(Boolean);
-  const navLinks = Array.from(document.querySelectorAll("#section-nav a"));
+// La carta ya no es una única lista continua con todas las secciones
+// apiladas: se ve una sección cada vez, y cambia al pulsar su categoría
+// en el selector de arriba — como cambiar de pestaña, no como hacer
+// scroll por un documento interminable. Cada sección conserva sus datos
+// e ids de siempre (el carrito no se entera del cambio), solo se
+// oculta/muestra con CSS (.is-active) y se relanza su animación de
+// entrada cada vez que se activa.
+function activateSection(sectionId) {
+  document.querySelectorAll(".cat-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.target === sectionId);
+  });
 
-  if (!("IntersectionObserver" in window) || !sectionEls.length) {
-    sectionEls.forEach((el) => el.classList.add("is-visible"));
-    return;
+  document.querySelectorAll(".menu-section").forEach((sec) => {
+    const isActive = sec.id === sectionId;
+    sec.classList.toggle("is-active", isActive);
+    if (isActive) {
+      sec.classList.remove("is-visible");
+      void sec.offsetWidth; // fuerza reflow para poder repetir la transición
+      sec.classList.add("is-visible");
+    }
+  });
+
+  const main = document.getElementById("menu-sections");
+  if (main && typeof main.scrollIntoView === "function") {
+    main.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
   }
+}
 
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+function setupSectionSwitcher(sections) {
+  const visibleSections = getVisibleSections(sections);
 
-  sectionEls.forEach((el) => revealObserver.observe(el));
+  document.querySelectorAll(".cat-btn").forEach((btn) => {
+    btn.addEventListener("click", () => activateSection(btn.dataset.target));
+  });
 
-  const spyObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const link = navLinks.find((a) => a.dataset.target === entry.target.id);
-      if (!link || !entry.isIntersecting) return;
-      navLinks.forEach((a) => a.classList.remove("active"));
-      link.classList.add("active");
-    });
-  }, { threshold: 0, rootMargin: "-45% 0px -45% 0px" });
-
-  sectionEls.forEach((el) => spyObserver.observe(el));
+  if (visibleSections.length) activateSection(visibleSections[0].id);
 }
 
 function renderSections(sections) {
@@ -710,7 +732,7 @@ async function init() {
     renderNav(sections);
     renderSections(sections);
     document.getElementById("footer-text").textContent = footer;
-    setupScrollAnimations(sections);
+    setupSectionSwitcher(sections);
   } catch (err) {
     document.getElementById("menu-sections").innerHTML =
       `<p style="color:#6b6b6b;text-align:center;padding:40px 10px;">

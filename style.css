@@ -179,7 +179,7 @@ header.hero::after {
 }
 
 .hero-logo {
-  width: 260px;
+  width: 160px;
   height: 160px;
   object-fit: contain;
   display: block;
@@ -187,7 +187,7 @@ header.hero::after {
 }
 
 @media (min-width: 480px) {
-  .hero-logo { width: 300px; height: 280px; }
+  .hero-logo { width: 180px; height: 180px; }
 }
 
 /* Hero text content */
@@ -293,13 +293,12 @@ header.hero::after {
 }
 
 .hero-wave svg {
-    display: block;
-    width: calc(100% + 2px);
-    height: clamp(75px, 5vw, 100px); 
-    fill: var(--bg);
-    /* Añade esta línea: */
-    transform: rotate(180deg); 
+  display: block;
+  width: 100%;
+  height: 70px;
+  fill: var(--bg);
 }
+
 @media (prefers-reduced-motion: reduce) {
   header.hero::before,
   header.hero::after {
@@ -371,7 +370,8 @@ header.hero::after {
 
 nav.section-nav {
   display: flex;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 14px;
   overflow-x: auto;
   margin-top: 0;
   padding: 10px 18px;
@@ -389,34 +389,77 @@ nav.section-nav::-webkit-scrollbar {
   display: none;
 }
 
-nav.section-nav a {
+/* Categorías como "lanzadores" circulares con foto (o icono si el
+   plato/sección aún no tiene foto en el Sheet) en vez de pills de
+   texto — pensado para que la carta se recorra por categoría, no
+   desplazándose por una lista continua de todo el menú. */
+.cat-btn {
   flex: 0 0 auto;
-  padding: 7px 16px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(91, 44, 135, 0.16);
-  background: #fff;
-  color: var(--purple);
-  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 68px;
+  border: none;
+  background: none;
+  padding: 4px 2px 2px;
+  cursor: pointer;
   font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(91, 44, 135, 0.06);
-  transition: background 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
 }
 
-nav.section-nav a:hover {
-  border-color: var(--pink-soft);
-  color: var(--pink);
-  box-shadow: 0 4px 12px rgba(230, 0, 126, 0.16);
+.cat-btn-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--section-color, var(--pink)), var(--purple-deep));
+  box-shadow: 0 3px 10px rgba(91, 44, 135, 0.14);
+  border: 2.5px solid transparent;
+  transition: border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 
-nav.section-nav a.active {
-  background: var(--section-color, var(--pink));
-  border-color: var(--section-color, var(--pink));
+.cat-btn-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cat-btn-icon {
+  display: flex;
   color: #fff;
-  transform: translateY(-1px);
+}
+
+.cat-btn-icon .fa-icon {
+  font-size: 22px;
+}
+
+.cat-btn-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.15;
+  max-width: 100%;
+  transition: color 0.25s ease;
+}
+
+.cat-btn:hover .cat-btn-thumb {
+  transform: translateY(-2px);
+}
+
+.cat-btn.active .cat-btn-thumb {
+  border-color: var(--section-color, var(--pink));
   box-shadow: 0 6px 16px rgba(91, 44, 135, 0.25);
+  transform: scale(1.08);
+}
+
+.cat-btn.active .cat-btn-label {
+  color: var(--section-color, var(--pink));
+  font-weight: 800;
 }
 
 /* ---------- Secciones ---------- */
@@ -425,13 +468,21 @@ main {
   padding-top: 8px;
 }
 
+/* Solo la sección activa (la de la categoría pulsada) se pinta en
+   pantalla — el resto queda oculto, así la carta nunca es un único
+   scroll infinito con todo el menú apilado. */
 section.menu-section {
-  margin-top: 52px;
+  display: none;
+  margin-top: 24px;
   opacity: 0;
   transform: translateY(26px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
   border-radius: 28px;
   padding: 4px 0;
+}
+
+section.menu-section.is-active {
+  display: block;
 }
 
 section.menu-section.is-visible {
@@ -577,10 +628,10 @@ section.menu-section.is-visible .section-heading .fa-icon {
 .quick-list {
   display: flex;
   flex-direction: column;
-  /*background: var(--card);
+  background: var(--card);
   border-radius: var(--border-radius);
   border: 1.5px solid rgba(91, 44, 135, 0.08);
-  box-shadow: 0 6px 20px rgba(91, 44, 135, 0.06);*/
+  box-shadow: 0 6px 20px rgba(91, 44, 135, 0.06);
   overflow: hidden;
 }
 

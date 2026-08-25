@@ -6,7 +6,7 @@
   --purple: #5b2c87;
   --purple-deep: #3a1b57;
   --violet: #9b59d9;
-  --orange: #ff8a00;
+  --orange: #FF6D00;
   /* Versión un pelín más oscura del naranja del logo, para texto/iconos
      sobre blanco (el ff8a00 puro pierde contraste en texto pequeño). */
   --orange-deep: #d97400;
@@ -20,7 +20,7 @@
   /* Amarillo fuerte de la cabecera — el cuarto color de marca, reservado
      solo para ese fondo, para que siga siendo un golpe de color y no se
      diluya usándolo en todas partes. */
-  --yellow: #ffc531;
+  --yellow: #FCD033;
   --yellow-deep: #f2a900;
 
   --bg: #ffffff;
@@ -31,10 +31,11 @@
   --max-width: 720px;
 
   /* Fredoka para títulos (redondeada, con carácter, a juego con el
-     logo); el texto de cuerpo se queda en la fuente de sistema neutra
-     de siempre, para no perder legibilidad en descripciones largas. */
+     logo); Poppins para el texto de cuerpo, legible y moderno. */
   --font-display: "Fredoka", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Poppins", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+  --header-h: 60px;
 }
 
 * {
@@ -74,136 +75,228 @@ body {
   padding: 0 18px 110px;
 }
 
-/* ---------- Header / hero ---------- */
+/* Colores de marca usados en footer */
+.logo-happy  { color: var(--pink); }
+.logo-corner { color: var(--purple); }
 
+/* === Hero section === */
 header.hero {
   position: relative;
-  padding: 40px 0 60px;
+  padding: 56px 0 0;
   text-align: center;
   overflow: hidden;
-  /* Degradado amarillo→naranja que respira muy despacio (no es un fondo
-     plano ni estático) — la cabecera sigue siendo el golpe de color de
-     la marca, pero con algo de vida detrás del logo. */
-  background: linear-gradient(120deg, var(--yellow) 0%, var(--orange) 100%);
-  background-size: 220% 220%;
-  animation: heroGradientShift 14s ease-in-out infinite;
+  background: radial-gradient(ellipse at 30% 0%, var(--yellow) 0%, var(--yellow-deep) 45%, var(--orange) 100%);
+  background-size: 200% 200%;
+  animation: heroGradientShift 16s ease-in-out infinite;
+}
+
+.hero-wrap {
+  padding-bottom: 0;
 }
 
 @keyframes heroGradientShift {
   0%, 100% { background-position: 0% 30%; }
-  50% { background-position: 100% 70%; }
+  50%       { background-position: 100% 70%; }
 }
 
-/* Manchas decorativas con los 3 colores del logo, flotando muy despacio
-   detrás del logo — le dan vida a la cabecera sin distraer del texto.
-   Grandes, difuminadas y de baja opacidad: se notan, no se leen. */
+/* Blobs decorativos del hero — círculos grandes difuminados */
 header.hero::before,
 header.hero::after {
   content: "";
   position: absolute;
-  width: 260px;
-  height: 260px;
   border-radius: 50%;
-  filter: blur(50px);
-  opacity: 0.35;
-  z-index: 0;
   pointer-events: none;
+  z-index: 0;
 }
 
+/* Blob rosa — esquina superior izquierda, grande */
 header.hero::before {
-  top: -90px;
-  left: -60px;
-  background: var(--pink);
-  animation: heroBlobFloat 9s ease-in-out infinite;
+  width: 420px;
+  height: 420px;
+  top: -160px;
+  left: -120px;
+  background: radial-gradient(circle at center, var(--pink) 0%, transparent 68%);
+  opacity: 0.5;
+  animation: heroBlobFloat 10s ease-in-out infinite;
 }
 
+/* Blob morado — esquina inferior derecha, grande */
 header.hero::after {
-  bottom: -110px;
-  right: -70px;
-  background: var(--purple);
-  animation: heroBlobFloat 11s ease-in-out infinite reverse;
+  width: 380px;
+  height: 380px;
+  bottom: -100px;
+  right: -100px;
+  background: radial-gradient(circle at center, var(--purple) 0%, transparent 68%);
+  opacity: 0.55;
+  animation: heroBlobFloat 13s ease-in-out infinite reverse;
+}
+
+/* Tercer blob naranja centrado-abajo vía hero-wrap */
+.hero-wrap::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, var(--orange) 0%, transparent 68%);
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+  animation: heroBlobFloat 8s ease-in-out infinite 2s;
+}
+
+.hero-wrap {
+  position: relative;
+  padding-bottom: 0;
 }
 
 @keyframes heroBlobFloat {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(24px, 18px) scale(1.12); }
+  33%       { transform: translate(18px, -14px) scale(1.08); }
+  66%       { transform: translate(-10px, 20px) scale(0.95); }
 }
 
-/* Cápsula de cristal esmerilado detrás del logo — lo separa del fondo
-   animado sin necesitar una caja sólida, y se siente más "app moderna"
-   que el logo suelto flotando directamente sobre el degradado. */
-.logo-badge {
-  display: inline-flex;
-  margin: 0 auto 16px;
-  padding: 10px 22px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(61, 43, 35, 0.12);
+/* Logo centrado en el hero */
+.logo-badge { display: none; }
+.logo { display: none; }
+
+.hero-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto 22px;
   position: relative;
   z-index: 1;
-  animation: logoPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-.logo {
-  width: 112px;
-  display: block;
-  filter: drop-shadow(0 4px 10px rgba(61, 43, 35, 0.2));
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .logo-badge {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: none;
-  }
+  animation: logoPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 
 @keyframes logoPop {
-  from { opacity: 0; transform: scale(0.8) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: scale(0.75) translateY(14px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+.hero-logo {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 8px 24px rgba(61,43,35,0.3));
+}
+
+@media (min-width: 480px) {
+  .hero-logo { width: 180px; height: 180px; }
+}
+
+/* Hero text content */
 .hero-tagline {
   font-family: var(--font-display);
-  color: var(--coffee-deep);
-  font-weight: 600;
-  font-size: 1.5rem;
-  letter-spacing: 0.2px;
-  margin: 0 0 8px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 2.6rem;
+  letter-spacing: 0.3px;
+  margin: 0 auto 14px;
+  max-width: 600px;
   position: relative;
   z-index: 1;
+  line-height: 1.15;
+  drop-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  text-shadow: 0 2px 10px rgba(61,43,35,0.18);
 }
 
 .hero-subtitle {
-  color: #4a3420;
-  font-size: 0.98rem;
-  margin: 0 auto 4px;
-  max-width: 480px;
-  line-height: 1.4;
+  color: var(--coffee-deep);
+  font-size: 1rem;
+  margin: 0 auto 8px;
+  max-width: 520px;
+  line-height: 1.5;
   position: relative;
   z-index: 1;
+  font-weight: 500;
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 999px;
+  padding: 8px 22px;
+  display: inline-block;
 }
 
 .hero-note {
-  color: #6b4f30;
-  font-size: 0.82rem;
-  margin: 0 0 20px;
+  color: rgba(255,255,255,0.82);
+  font-size: 0.84rem;
+  margin: 0 0 28px;
   position: relative;
   z-index: 1;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
+/* CTA Button */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--purple);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 32px;
+  border-radius: 999px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 24px rgba(91,44,135,0.4);
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  margin-bottom: 40px;
+}
+
+.hero-cta:hover {
+  background: var(--pink);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(230,0,126,0.4);
+}
+
+.hero-cta .fa-icon,
+.hero-cta i {
+  font-size: 0.85rem;
+  animation: ctaBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes ctaBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+/* Hero photo card */
 .hero-photo {
-  margin: -42px auto 0;
+  position: relative;
+  z-index: 3;
   max-width: calc(var(--max-width) - 36px);
   width: calc(100% - 36px);
   aspect-ratio: 16 / 9;
   border-radius: 20px;
   overflow: hidden;
+  margin: 28px auto 0;
+  box-shadow: 0 20px 48px rgba(61,43,35,0.35);
+}
+
+/* Wave SVG at bottom of hero */
+.hero-wave {
   position: relative;
   z-index: 2;
-  box-shadow: 0 16px 34px rgba(61, 43, 35, 0.3);
+  margin-top: -2px;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.hero-wave svg {
+  display: block;
+  width: 100%;
+  height: 70px;
+  fill: var(--bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -211,6 +304,15 @@ header.hero::after {
   header.hero::after {
     animation: none;
   }
+  .hero-cta i,
+  .hero-cta .fa-icon {
+    animation: none;
+  }
+}
+
+@media (min-width: 600px) {
+  .hero-tagline { font-size: 3.4rem; }
+  header.hero { padding-top: 80px; }
 }
 
 /* ---------- Placeholder de foto ---------- */
@@ -270,7 +372,7 @@ nav.section-nav {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  margin-top: 22px;
+  margin-top: 0;
   padding: 10px 18px;
   scrollbar-width: none;
   position: sticky;
@@ -323,10 +425,12 @@ main {
 }
 
 section.menu-section {
-  margin-top: 34px;
+  margin-top: 52px;
   opacity: 0;
   transform: translateY(26px);
   transition: opacity 0.7s ease, transform 0.7s ease;
+  border-radius: 28px;
+  padding: 4px 0;
 }
 
 section.menu-section.is-visible {
@@ -334,22 +438,64 @@ section.menu-section.is-visible {
   transform: translateY(0);
 }
 
+/* Secciones pares: fondo cálido con blobs decorativos (como Gelateria en diseño ejemplo) */
+section.menu-section:nth-child(even) {
+  background: rgba(252, 208, 51, 0.12);
+  border: 1.5px solid rgba(252, 208, 51, 0.32);
+  padding: 28px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+section.menu-section:nth-child(even)::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,109,0,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+section.menu-section:nth-child(even)::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: -50px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230,0,126,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Secciones impares: fondo limpio (sin div de color) */
+section.menu-section:nth-child(odd) {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
 .section-heading {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin: 0 0 14px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--section-color, var(--pink));
+  text-align: center;
+  gap: 6px;
+  margin: 0 0 28px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .section-heading .fa-icon {
-  font-size: 22px;
+  font-size: 26px;
   line-height: 1;
-  flex: none;
   color: var(--section-color, var(--pink));
   transform: scale(0.5);
   transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-bottom: 2px;
 }
 
 section.menu-section.is-visible .section-heading .fa-icon {
@@ -359,10 +505,26 @@ section.menu-section.is-visible .section-heading .fa-icon {
 .section-heading h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 600;
+  font-size: 1.9rem;
+  font-weight: 700;
   color: var(--section-color, var(--pink));
   letter-spacing: 0.2px;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 14px;
+}
+
+/* Barra decorativa bajo el título (igual que diseño ejemplo) */
+.section-heading h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 4px;
+  background: var(--orange);
+  border-radius: 2px;
 }
 
 /* ---------- Tarjetas de plato ---------- */
@@ -470,11 +632,13 @@ section.menu-section.is-visible .section-heading .fa-icon {
 }
 
 .quick-row-price {
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 700;
   color: var(--section-color, var(--pink));
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   white-space: nowrap;
   flex: 0 0 auto;
+  letter-spacing: 0.3px;
 }
 
 @keyframes dishPulse {
@@ -535,10 +699,12 @@ section.menu-section.is-visible .section-heading .fa-icon {
 }
 
 .dish-price {
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 700;
   color: var(--section-color, var(--pink));
-  font-size: 1.02rem;
+  font-size: 1.15rem;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .add-btn {
@@ -547,23 +713,26 @@ section.menu-section.is-visible .section-heading .fa-icon {
   gap: 6px;
   border: none;
   border-radius: 999px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, var(--pink), var(--purple));
+  padding: 9px 16px;
+  background: var(--purple);
   color: #fff;
-  font-weight: 700;
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(230, 0, 126, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(91, 44, 135, 0.35);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .add-btn:hover {
+  background: var(--pink);
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(230, 0, 126, 0.4);
+  box-shadow: 0 8px 20px rgba(230, 0, 126, 0.4);
 }
 
 .add-btn .fa-icon {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* ---------- Tarjeta "flagship" con selector de sabor/topping ----------
@@ -717,8 +886,10 @@ section.menu-section.is-visible .section-heading .fa-icon {
 
 .flavor-row-price {
   flex: none;
-  font-weight: 800;
-  font-size: 0.9rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
   color: var(--section-color, var(--purple));
   white-space: nowrap;
 }
@@ -769,10 +940,12 @@ section.menu-section.is-visible .section-heading .fa-icon {
 }
 
 .extra-card-price {
-  font-weight: 800;
-  font-size: 0.82rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
   color: var(--section-color, var(--purple));
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .qty-stepper {
@@ -850,22 +1023,142 @@ section.menu-section.is-visible .section-heading .fa-icon {
   100% { background-position: 0 0; }
 }
 
-/* ---------- Footer ---------- */
-
-footer {
+/* === Rich dark footer === */
+.site-footer {
+  background: var(--coffee-deep);
+  color: rgba(255,255,255,0.8);
   margin-top: 40px;
-  text-align: center;
-  color: #7d6a99;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  padding-top: 16px;
-  border-top: 1px solid rgba(91, 44, 135, 0.12);
+  position: relative;
+  overflow: hidden;
 }
 
-footer .brand-line {
-  margin-top: 8px;
-  color: #a993c7;
+.site-footer-accent {
+  height: 4px;
+  background: linear-gradient(90deg, var(--pink), var(--purple), var(--orange));
+}
+
+.site-footer-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  padding: 40px 18px 32px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+@media (min-width: 600px) {
+  .site-footer-top {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+.footer-logo-img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.footer-brand-name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.footer-brand-name .logo-happy  { color: var(--pink); }
+.footer-brand-name .logo-corner { color: var(--yellow); }
+
+.footer-tagline {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.6);
+  margin: 0 0 8px;
+}
+
+.footer-legal {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.footer-col-title {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 14px;
+  color: var(--orange);
+}
+
+.footer-hours ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-hours li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.65);
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+  padding-bottom: 6px;
+}
+
+.footer-hours li span {
+  color: #fff;
+  font-weight: 600;
+}
+
+.footer-contact address {
+  font-style: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.65);
+}
+
+.footer-contact a {
+  color: var(--yellow);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-contact a:hover {
+  color: var(--pink);
+}
+
+.site-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.site-footer-bottom .brand-line {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
+}
+
+.footer-copyright {
   font-size: 0.72rem;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
 }
 
 /* ---------- Carrito local (FAB + panel "Mi Selección") ---------- */
@@ -1128,12 +1421,4 @@ footer .brand-line {
 .cart-clear-btn:hover {
   border-color: var(--pink);
   color: var(--pink);
-}
-
-/* ---------- Responsive ---------- */
-
-@media (min-width: 600px) {
-  .hero-tagline {
-    font-size: 1.7rem;
-  }
 }

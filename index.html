@@ -20,11 +20,10 @@
 <link rel="icon" href="assets/logo.png" />
 
 <!-- Tipografía: Fredoka para títulos (redondeada, con carácter, a juego
-     con el logo) + una fuente de sistema neutra para el texto de cuerpo,
-     para no perder legibilidad en descripciones largas. -->
+     con el logo) + Poppins para el texto de cuerpo. -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
 <!-- Iconos: Font Awesome (gratis, vía CDN) en vez de los SVG genéricos
      dibujados a mano — mismo criterio en toda la web. -->
@@ -35,27 +34,63 @@
 <body>
 
 <header class="hero">
-  <div class="wrap">
-    <div class="logo-badge">
-      <img class="logo" src="assets/logo.png" alt="Happy Corner" />
+  <div class="wrap hero-wrap">
+    <div class="hero-logo-wrap">
+      <img class="hero-logo" src="assets/logo.png" alt="Happy Corner" />
     </div>
     <p class="hero-tagline" id="hero-tagline">¡Desayuna bien!</p>
     <p class="hero-subtitle" id="hero-subtitle"></p>
     <p class="hero-note" id="hero-note"></p>
+    <a href="#menu-sections" class="hero-cta">
+      Ver Menú&ensp;<i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+    </a>
   </div>
-  <div class="hero-photo" id="hero-photo"></div>
+  <div class="hero-photo" id="hero-photo" hidden></div>
+  <div class="hero-wave" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,137.36,121.75,206.87,112.91,245.74,108,284.5,92.5,321.39,56.44Z"/>
+    </svg>
+  </div>
 </header>
 
 <nav class="section-nav" id="section-nav"></nav>
 
-<div class="wrap">
+<div class="wrap" style="padding: 0 18px 40px;">
   <main id="menu-sections"></main>
-
-  <footer>
-    <p id="footer-text"></p>
-    <p class="brand-line">Happy Corner</p>
-  </footer>
 </div>
+
+<footer class="site-footer">
+  <div class="site-footer-accent"></div>
+  <div class="wrap site-footer-top">
+    <div class="footer-col footer-brand">
+      <img src="assets/logo.png" alt="Happy Corner" class="footer-logo-img" />
+      <p class="footer-brand-name">
+        <span class="logo-happy">Happy</span><span class="logo-corner">corner</span>
+      </p>
+      <p class="footer-tagline">Cafetería · Tu rincón feliz para disfrutar de los mejores desayunos y postres artesanales.</p>
+      <p class="footer-legal" id="footer-text"></p>
+    </div>
+    <div class="footer-col footer-hours">
+      <h6 class="footer-col-title">Horario</h6>
+      <ul>
+        <li>Lunes – Viernes<span>8:00 – 21:00</span></li>
+        <li>Sábado y Domingo<span>9:00 – 22:00</span></li>
+      </ul>
+    </div>
+    <div class="footer-col footer-contact">
+      <h6 class="footer-col-title">Encuéntranos</h6>
+      <address>
+        <p>Plaza de la Alegría, 5</p>
+        <p>03001 · Alicante</p>
+        <p><a href="mailto:hola@happycorner.com">hola@happycorner.com</a></p>
+      </address>
+    </div>
+  </div>
+  <div class="wrap site-footer-bottom">
+    <p class="brand-line">Happy Corner</p>
+    <p class="footer-copyright">&copy; 2026 Happy Corner · Todos los derechos reservados.</p>
+  </div>
+</footer>
 
 <!-- Botón flotante + panel "Mi Selección" (modelo híbrido, sin pago: el
      cliente arma su pedido aquí y se lo enseña/lee al camarero). -->

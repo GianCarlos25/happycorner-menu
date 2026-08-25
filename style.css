@@ -187,7 +187,7 @@ header.hero::after {
 }
 
 @media (min-width: 480px) {
-  .hero-logo { width: 180px; height: 180px; }
+  .hero-logo { width: 300px; height: 280px; }
 }
 
 /* Hero text content */

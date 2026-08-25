@@ -577,10 +577,10 @@ section.menu-section.is-visible .section-heading .fa-icon {
 .quick-list {
   display: flex;
   flex-direction: column;
-  background: var(--card);
+  /*background: var(--card);
   border-radius: var(--border-radius);
   border: 1.5px solid rgba(91, 44, 135, 0.08);
-  box-shadow: 0 6px 20px rgba(91, 44, 135, 0.06);
+  box-shadow: 0 6px 20px rgba(91, 44, 135, 0.06);*/
   overflow: hidden;
 }
 

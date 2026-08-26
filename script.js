@@ -445,7 +445,13 @@ function setupCartUI() {
 /* ---------- Render ---------- */
 
 function renderHero(restaurant) {
-  document.getElementById("hero-tagline").textContent = restaurant.tagline || "";
+  // Si "tagline" viene vacío en menu.json (p. ej. si se quita el
+  // "¡Desayuna bien!"), se oculta del todo en vez de dejar un hueco en
+  // blanco con su margen reservado.
+  const tagline = document.getElementById("hero-tagline");
+  tagline.textContent = restaurant.tagline || "";
+  tagline.hidden = !restaurant.tagline;
+
   document.getElementById("hero-subtitle").textContent = restaurant.subtitle || "";
   document.getElementById("hero-note").textContent = restaurant.note || "";
   document.getElementById("hero-photo").innerHTML = photoBlock(restaurant.heroImage, restaurant.heroImageAlt);

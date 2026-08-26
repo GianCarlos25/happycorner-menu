@@ -1,9 +1,9 @@
 {
   "restaurant": {
     "name": "Happy Corner",
-    "tagline": "¡Desayuna bien!",
+    "tagline": "",
     "subtitle": "Pide tu tostada y el café o infusión va incluido.",
-    "note": "Pan de Masa Madre o Cereales · de 9:00 a 11:30h",
+    "note": "Desayunos de lunes a viernes de 9:00 a 11:30h",
     "heroImage": "assets/desayuno.jpg",
     "heroImageAlt": "Desayuno de Happy Corner: tostadas, huevos revueltos, aguacate y café"
   },

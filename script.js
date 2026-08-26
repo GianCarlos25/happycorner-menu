@@ -17,6 +17,13 @@
 const JSON_URL = "menu.json";
 const CART_STORAGE_KEY = "happycorner_cart_v1";
 
+// Interruptor único para apagar el carrito/"Mi Selección": ni los botones
+// "Añadir" en los platos ni el botón flotante ni el panel aparecen en
+// pantalla. Todo el código del carrito sigue intacto por debajo, no se ha
+// borrado nada — para volver a activarlo en el futuro basta con poner
+// esta constante en true otra vez.
+const CART_ENABLED = false;
+
 // El color de cada sección alterna automáticamente según su posición,
 // igual que en la carta impresa — nunca hace falta tocar el diseño.
 // Los 3 colores son, a propósito, los 3 colores del logo (rosa, morado,
@@ -271,6 +278,11 @@ function getCartTotal() {
 }
 
 function renderDishActions(id) {
+  // Carrito apagado (ver CART_ENABLED arriba): no se pinta ni el botón
+  // "Añadir" ni el contador +/-. La lógica de abajo sigue funcionando
+  // igual si algún día se reactiva, simplemente no se muestra nada.
+  if (!CART_ENABLED) return "";
+
   const qty = cart[id]?.qty || 0;
   if (qty <= 0) {
     return `
@@ -364,6 +376,17 @@ function setupCartUI() {
   const overlay = document.getElementById("cart-overlay");
   const closeBtn = document.getElementById("cart-drawer-close");
   const clearBtn = document.getElementById("cart-clear-btn");
+
+  // Carrito apagado (ver CART_ENABLED arriba): se esconde el botón
+  // flotante "Mi Selección" y su panel — nada se borra, solo se oculta.
+  // Si en el futuro se vuelve a poner CART_ENABLED en true, esto deja de
+  // ejecutarse y todo el flujo de siempre vuelve a funcionar tal cual.
+  if (!CART_ENABLED) {
+    if (fab) fab.style.display = "none";
+    if (drawer) drawer.style.display = "none";
+    if (overlay) overlay.style.display = "none";
+    return;
+  }
 
   function openDrawer() {
     drawer.classList.add("open");

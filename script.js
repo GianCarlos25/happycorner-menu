@@ -214,6 +214,9 @@ function sheetRowsToSections(rows) {
         // a mano desde el Sheet — ver columna "Foto categoría" más abajo.
         // Se queda a null hasta que alguna fila de esta sección la traiga.
         navThumb: null,
+        // Subtítulo/nota libre que aparece debajo de todos los platos de
+        // la sección (columna "Nota sección" del Sheet, opcional).
+        note: "",
         items: []
       };
       byTitle.set(title, section);
@@ -231,6 +234,15 @@ function sheetRowsToSections(rows) {
       r["imagen categoría"] || r["imagen categoria"] || "";
     if (categoryPhoto && !section.navThumb) {
       section.navThumb = categoryPhoto;
+    }
+
+    // Columna opcional del Sheet "Nota sección": un subtítulo libre que
+    // aparece debajo de todos los platos de esa sección (p. ej. "Disponible
+    // para desayunos y cenas"). Igual que con la foto, basta con rellenarla
+    // en UNA fila de la sección.
+    const sectionNote = r["nota sección"] || r["nota seccion"] || "";
+    if (sectionNote && !section.note) {
+      section.note = sectionNote;
     }
 
     section.items.push({
@@ -607,6 +619,14 @@ function renderSections(sections) {
       ? renderFlagshipCard(section, items, extrasSection)
       : `<div class="${isQuickList ? "quick-list" : "dishes-grid"}">${dishes}</div>`;
 
+    // Nota libre de la sección (columna "Nota sección" del Sheet), pintada
+    // justo debajo de todos los platos — reutiliza el mismo estilo que ya
+    // usa "Elige tu sabor"/"Complementos (opcional)", no hace falta CSS
+    // nuevo.
+    const noteHtml = section.note
+      ? `<p class="topping-label section-note">${escapeHtml(section.note)}</p>`
+      : "";
+
     return `
       <section class="menu-section" id="${escapeHtml(section.id)}" style="--section-color:${color}">
         <div class="section-heading">
@@ -615,6 +635,7 @@ function renderSections(sections) {
         </div>
         ${!isFlagship && showPhoto ? `<div class="section-photo">${photoBlock(section.featuredImage, section.featuredImageAlt)}</div>` : ""}
         ${bodyHtml}
+        ${noteHtml}
       </section>
     `;
   }).join("");

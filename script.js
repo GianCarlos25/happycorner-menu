@@ -630,7 +630,7 @@ function renderSections(sections) {
     // usa "Elige tu sabor"/"Complementos (opcional)", no hace falta CSS
     // nuevo.
     const noteHtml = section.note
-      ? `<p class="topping-label section-note">${escapeHtml(section.note)}</p>`
+      ? `<p class="section-note">${escapeHtml(section.note)}</p>`
       : "";
 
     return `

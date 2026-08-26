@@ -1475,6 +1475,19 @@ section.menu-section.is-visible .section-heading .fa-icon {
   border-color: var(--pink);
   color: var(--pink);
 }
+
 .flagship-content > .dish-actions-row {
   display: none;
+}
+
+/* Nota libre de sección ("Nota sección" del Sheet): discreta, pegada a
+   la tarjeta, como un pie de foto — no compite con los platos. */
+.section-note {
+  margin: 6px 4px 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: normal;
 }

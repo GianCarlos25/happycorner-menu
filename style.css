@@ -372,7 +372,7 @@ header.hero::after {
 nav.section-nav {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 19px;
   overflow-x: auto;
   margin-top: 0;
   padding: 10px 18px;
@@ -409,8 +409,8 @@ nav.section-nav::-webkit-scrollbar {
 }
 
 .cat-btn-thumb {
-  width: 56px;
-  height: 56px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   overflow: hidden;
   display: flex;

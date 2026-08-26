@@ -203,13 +203,30 @@ function sheetRowsToSections(rows) {
         icon: KNOWN_SECTION_ICONS[title.trim().toLowerCase()] || "plate",
         featuredImage: knownPhoto ? knownPhoto.image : null,
         featuredImageAlt: knownPhoto ? knownPhoto.alt : "",
+        // Miniatura del círculo de categoría (selector de arriba), fijada
+        // a mano desde el Sheet — ver columna "Foto categoría" más abajo.
+        // Se queda a null hasta que alguna fila de esta sección la traiga.
+        navThumb: null,
         items: []
       };
       byTitle.set(title, section);
       sections.push(section);
     }
 
-    byTitle.get(title).items.push({
+    const section = byTitle.get(title);
+
+    // Columna opcional del Sheet para fijar a mano la foto del círculo de
+    // categoría (selector de arriba), sin tocar código: "Foto categoría"
+    // (o "Imagen categoría"). Solo hace falta rellenarla en UNA fila de la
+    // sección — se queda con la primera que no esté vacía.
+    const categoryPhoto =
+      r["foto categoría"] || r["foto categoria"] ||
+      r["imagen categoría"] || r["imagen categoria"] || "";
+    if (categoryPhoto && !section.navThumb) {
+      section.navThumb = categoryPhoto;
+    }
+
+    section.items.push({
       name: r["plato"] || r["nombre"] || "",
       description: r["descripción"] || r["descripcion"] || "",
       price: r["precio"] || "",
@@ -411,6 +428,7 @@ function getVisibleSections(sections) {
 // tenga foto (columna "Imagen" del Sheet) y, si ninguno tiene, cae en un
 // círculo con el icono de la sección — nunca queda un hueco vacío.
 function getSectionThumb(section) {
+  if (section.navThumb) return section.navThumb;
   if (section.featuredImage) return section.featuredImage;
   const withPhoto = (section.items || []).find((it) => it.image);
   return withPhoto ? withPhoto.image : null;

@@ -1475,3 +1475,6 @@ section.menu-section.is-visible .section-heading .fa-icon {
   border-color: var(--pink);
   color: var(--pink);
 }
+.flagship-content > .dish-actions-row {
+  display: none;
+}

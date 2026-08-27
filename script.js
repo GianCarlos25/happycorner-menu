@@ -65,6 +65,122 @@ const ICONS = {
   plus: `<i class="fa-solid fa-plus fa-icon" aria-hidden="true"></i>`
 };
 
+// ------------------------------------------------------------------
+// Alérgenos: se detectan automáticamente a partir de la columna
+// "Ingredientes" del Sheet (texto libre, separado por comas — solo hace
+// falta poner ahí los ingredientes que puedan dar alergia, no la receta
+// completa). Cada alérgeno de la lista oficial de la UE tiene aquí sus
+// palabras clave habituales en español; si el texto de "Ingredientes"
+// contiene alguna, se pinta el icono correspondiente.
+//
+// OJO — esto es una ayuda visual, no un análisis nutricional: puede
+// fallar si el ingrediente se escribe de forma rara o si falta alguna
+// palabra clave en esta lista. Revisad siempre a mano los iconos que
+// salen en cada plato antes de daros por satisfechos, sobre todo en
+// platos con salsas (césar, mielmostaza...) que a veces llevan huevo o
+// pescado sin que el nombre del plato lo diga.
+const ALLERGENS = {
+  gluten: {
+    label: "Gluten",
+    icon: "fa-wheat-awn",
+    keywords: ["pan", "harina", "trigo", "cerveza", "pasta", "focaccia", "empanado", "rebozado", "cebada", "centeno", "masa", "molde"]
+  },
+  crustaceos: {
+    label: "Crustáceos",
+    icon: "fa-shrimp",
+    keywords: ["gamba", "langostino", "cigala", "marisco", "camarón", "camaron"]
+  },
+  huevo: {
+    label: "Huevo",
+    icon: "fa-egg",
+    keywords: ["huevo", "mayonesa", "alioli", "tortilla", "césar", "cesar"]
+  },
+  pescado: {
+    label: "Pescado",
+    icon: "fa-fish",
+    keywords: ["atún", "atun", "salmón", "salmon", "anchoa", "bacalao", "merluza", "boquerón", "boqueron"]
+  },
+  moluscos: {
+    label: "Moluscos",
+    icon: "fa-water",
+    keywords: ["pulpo", "calamar", "mejillón", "mejillon", "almeja", "sepia"]
+  },
+  cacahuete: {
+    label: "Cacahuete",
+    icon: "fa-seedling",
+    keywords: ["cacahuete", "maní", "mani"]
+  },
+  frutos_cascara: {
+    label: "Frutos de cáscara",
+    icon: "fa-tree",
+    keywords: ["almendra", "avellana", "nuez", "nueces", "pistacho", "anacardo", "piñón", "pinon", "macadamia", "nutella"]
+  },
+  soja: {
+    label: "Soja",
+    icon: "fa-leaf",
+    keywords: ["soja", "edamame"]
+  },
+  lacteos: {
+    label: "Lácteos",
+    icon: "fa-cheese",
+    keywords: ["queso", "leche", "nata", "mantequilla", "yogur", "crema", "parmesano", "cheddar", "provolone", "edam", "dulce de leche"]
+  },
+  apio: {
+    label: "Apio",
+    icon: "fa-carrot",
+    keywords: ["apio"]
+  },
+  mostaza: {
+    label: "Mostaza",
+    icon: "fa-bottle-droplet",
+    keywords: ["mostaza", "mielmostaza", "miel mostaza", "miel-mostaza"]
+  },
+  sesamo: {
+    label: "Sésamo",
+    icon: "fa-circle-dot",
+    keywords: ["sésamo", "sesamo", "ajonjolí", "ajonjoli", "tahini"]
+  },
+  sulfitos: {
+    label: "Sulfitos",
+    icon: "fa-wine-glass",
+    keywords: ["vino", "sidra", "vinagre de vino", "tinto de verano"]
+  },
+  altramuces: {
+    label: "Altramuces",
+    icon: "fa-seedling",
+    keywords: ["altramuces", "lupino"]
+  }
+};
+
+// Quita acentos y pasa a minúsculas, para comparar sin depender de cómo
+// se haya escrito el acento en el Sheet.
+function normalizeForMatch(str) {
+  return (str || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+}
+
+function detectAllergens(ingredientsRaw) {
+  if (!ingredientsRaw) return [];
+  const text = normalizeForMatch(ingredientsRaw);
+  return Object.keys(ALLERGENS).filter((key) =>
+    ALLERGENS[key].keywords.some((kw) => text.includes(normalizeForMatch(kw)))
+  );
+}
+
+// Fila pequeña de iconos de alérgeno para un plato — vacío ("") si la
+// columna "Ingredientes" está vacía o no coincide con nada conocido, así
+// que no cambia nada en los platos que aún no la tengan rellenada.
+function renderAllergenIcons(ingredientsRaw) {
+  const keys = detectAllergens(ingredientsRaw);
+  if (!keys.length) return "";
+  return `<div class="allergen-icons">${keys.map((key) => {
+    const a = ALLERGENS[key];
+    return `<span class="allergen-icon" title="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
+  }).join("")}</div>`;
+}
+
 // Postres/Kürtőskalács conserva su foto destacada oficial (fija, la pone
 // la agencia — la clienta no puede cambiarla desde el Sheet). Desayunos
 // ya tiene su foto arriba del todo, en la cabecera, así que no repetimos
@@ -249,7 +365,12 @@ function sheetRowsToSections(rows) {
       name: r["plato"] || r["nombre"] || "",
       description: r["descripción"] || r["descripcion"] || "",
       price: r["precio"] || "",
-      image: r["imagen"] || r["foto"] || r["image"] || ""
+      image: r["imagen"] || r["foto"] || r["image"] || "",
+      // Columna opcional "Ingredientes" del Sheet: solo hace falta poner
+      // los ingredientes que puedan dar alergia, separados por comas — de
+      // ahí se detectan los iconos de alérgenos automáticamente (ver
+      // ALLERGENS/detectAllergens más abajo).
+      ingredients: r["ingredientes"] || ""
     });
   });
 
@@ -590,6 +711,7 @@ function renderSections(sections) {
             <span class="quick-row-body">
               <span class="quick-row-name">${escapeHtml(item.name)}</span>
               ${item.description ? `<span class="quick-row-desc">${escapeHtml(item.description)}</span>` : ""}
+              ${renderAllergenIcons(item.ingredients)}
             </span>
             <span class="quick-row-end">
               <span class="quick-row-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
@@ -612,6 +734,7 @@ function renderSections(sections) {
             <div class="dish-text">
               <h3 class="dish-name">${escapeHtml(item.name)}</h3>
               ${item.description ? `<p class="dish-desc">${escapeHtml(item.description)}</p>` : ""}
+              ${renderAllergenIcons(item.ingredients)}
             </div>
             <div class="dish-actions-row">
               <span class="dish-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
@@ -679,6 +802,7 @@ function renderFlagshipCard(section, items, extrasSection) {
         <span class="flavor-row-body">
           <span class="flavor-row-name">${escapeHtml(item.name)}</span>
           ${item.description ? `<span class="flavor-row-desc">${escapeHtml(item.description)}</span>` : ""}
+          ${renderAllergenIcons(item.ingredients)}
         </span>
         <span class="flavor-row-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
       </button>`;
@@ -723,6 +847,7 @@ function renderFlagshipExtras(extrasSection) {
     return `
       <div class="extra-card" data-id="${id}">
         <span class="extra-card-name">${escapeHtml(item.name)}</span>
+        ${renderAllergenIcons(item.ingredients)}
         <span class="extra-card-row">
           <span class="extra-card-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
           <span class="dish-actions-slot" data-actions-for="${id}">${renderDishActions(id)}</span>

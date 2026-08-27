@@ -1492,14 +1492,8 @@ section.menu-section.is-visible .section-heading .fa-icon {
   letter-spacing: normal;
 }
 
-.allergen-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 6px;
-}
-
 .allergen-icon {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1509,8 +1503,55 @@ section.menu-section.is-visible .section-heading .fa-icon {
   background: var(--allergen-color, var(--muted));
   color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
 }
 
 .allergen-icon .fa-icon {
   font-size: 0.68rem;
+}
+
+/* Burbuja con el nombre del alérgeno: oculta por defecto, aparece al
+   tocar/pulsar el icono (ver setupAllergenTooltips en script.js) — así
+   funciona igual en móvil que en ordenador, sin depender de "hover". */
+.allergen-icon::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 6;
+}
+
+.allergen-icon::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  z-index: 6;
+}
+
+.allergen-icon.show-tip::after,
+.allergen-icon.show-tip::before {
+  opacity: 1;
+}
+
+.allergen-icon.show-tip::after {
+  transform: translateX(-50%) translateY(0);
 }

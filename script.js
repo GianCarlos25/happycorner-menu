@@ -84,7 +84,7 @@ const ALLERGENS = {
     label: "Gluten",
     icon: "fa-wheat-awn",
     color: "#c17a3d",
-    keywords: ["pan", "harina", "trigo", "cerveza", "pasta", "focaccia", "empanado", "rebozado", "cebada", "centeno", "masa", "molde"]
+    keywords: ["pan", "harina", "trigo", "cerveza", "gluten", "pasta", "focaccia", "empanado", "rebozado", "cebada", "centeno", "masa", "molde"]
   },
   crustaceos: {
     label: "Crustáceos",

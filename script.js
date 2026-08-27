@@ -189,10 +189,44 @@ function detectAllergens(ingredientsRaw) {
 function renderAllergenIcons(ingredientsRaw) {
   const keys = detectAllergens(ingredientsRaw);
   if (!keys.length) return "";
+  // Sin "title": en móvil (donde se usa esta carta casi siempre) el
+  // title no se ve nunca porque no hay "pasar el ratón por encima". En
+  // su lugar, data-label + setupAllergenTooltips() más abajo muestran el
+  // nombre al TOCAR el icono, en cualquier dispositivo.
   return `<div class="allergen-icons">${keys.map((key) => {
     const a = ALLERGENS[key];
-    return `<span class="allergen-icon" style="--allergen-color:${a.color}" title="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
+    return `<span class="allergen-icon" style="--allergen-color:${a.color}" data-label="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}" role="button" tabindex="0"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
   }).join("")}</div>`;
+}
+
+// Al tocar/pulsar un icono de alérgeno aparece su nombre un par de
+// segundos (burbuja pequeña encima del icono) y luego se esconde solo.
+// Un único listener delegado en #menu-sections, así funciona con
+// cualquier plato aunque la carta se vuelva a pintar — e, importante,
+// funciona igual esté el carrito (CART_ENABLED) activado o no, porque
+// no depende de setupCartUI().
+function setupAllergenTooltips() {
+  const main = document.getElementById("menu-sections");
+  if (!main) return;
+
+  main.addEventListener("click", (e) => {
+    const icon = e.target.closest(".allergen-icon");
+
+    document.querySelectorAll(".allergen-icon.show-tip").forEach((el) => {
+      if (el !== icon) {
+        el.classList.remove("show-tip");
+        clearTimeout(el._tipTimer);
+      }
+    });
+
+    if (!icon) return;
+
+    const isShown = icon.classList.toggle("show-tip");
+    clearTimeout(icon._tipTimer);
+    if (isShown) {
+      icon._tipTimer = setTimeout(() => icon.classList.remove("show-tip"), 2200);
+    }
+  });
 }
 
 // Postres/Kürtőskalács conserva su foto destacada oficial (fija, la pone
@@ -940,6 +974,7 @@ async function init() {
     renderSections(sections);
     document.getElementById("footer-text").textContent = footer;
     setupSectionSwitcher(sections);
+    setupAllergenTooltips();
   } catch (err) {
     document.getElementById("menu-sections").innerHTML =
       `<p style="color:#6b6b6b;text-align:center;padding:40px 10px;">

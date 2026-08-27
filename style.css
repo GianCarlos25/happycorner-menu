@@ -1492,13 +1492,6 @@ section.menu-section.is-visible .section-heading .fa-icon {
   letter-spacing: normal;
 }
 
-.allergen-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 6px;
-}
-
 .allergen-icon {
   position: relative;
   display: inline-flex;

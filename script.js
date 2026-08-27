@@ -418,7 +418,12 @@ function sheetRowsToSections(rows) {
       // los ingredientes que puedan dar alergia, separados por comas — de
       // ahí se detectan los iconos de alérgenos automáticamente (ver
       // ALLERGENS/detectAllergens más abajo).
-      ingredients: r["ingredientes"] || ""
+      ingredients: r["ingredientes"] || "",
+      // Columna opcional "Grupo" del Sheet: permite trocear listas largas
+      // (bebidas, bocadillos...) en bloques con subtítulo ("De barril",
+      // "En botella"...) sin tocar código. Si se deja vacía, la fila se
+      // pinta igual que siempre, sin ningún subtítulo.
+      group: r["grupo"] || ""
     });
   });
 
@@ -745,6 +750,13 @@ function renderSections(sections) {
     // Se rellena itemsById para TODOS los platos igual que siempre —
     // el selector de sabor de más abajo reutiliza estos mismos ids, no
     // crea ningún dato ni lógica de carrito nueva.
+    // Si al menos un plato de la sección trae "Grupo" relleno, las
+    // quick-list pintan un subtítulo cada vez que cambia de grupo
+    // (siguiendo el orden de filas del Sheet, sin reordenar nada). Si
+    // ningún plato tiene grupo, esto no pinta nada y la lista queda
+    // exactamente igual que antes.
+    let lastGroup = null;
+
     const dishes = items.map((item, idx) => {
       const id = `${section.id}__${idx}`;
       itemsById[id] = {
@@ -754,7 +766,16 @@ function renderSections(sections) {
       };
 
       if (isQuickList) {
+        const groupHeader =
+          item.group && item.group !== lastGroup
+            ? (() => {
+                lastGroup = item.group;
+                return `<div class="quick-group-title">${escapeHtml(item.group)}</div>`;
+              })()
+            : "";
+
         return `
+          ${groupHeader}
           <div class="quick-row" data-id="${id}">
             <span class="quick-row-body">
               <span class="quick-row-name">${escapeHtml(item.name)}</span>

@@ -423,7 +423,13 @@ function sheetRowsToSections(rows) {
       // (bebidas, bocadillos...) en bloques con subtítulo ("De barril",
       // "En botella"...) sin tocar código. Si se deja vacía, la fila se
       // pinta igual que siempre, sin ningún subtítulo.
-      group: r["grupo"] || ""
+      group: r["grupo"] || "",
+      // Columna opcional "Logo" del Sheet: distinta de "Imagen" a propósito
+      // — "Imagen" decide si el plato usa tarjeta con foto grande; "Logo"
+      // es solo un icono pequeño y redondo (marca de la bebida) que se
+      // pinta en las filas de quick-list sin convertir la sección entera
+      // en tarjetas de foto.
+      logo: r["logo"] || r["icono"] || ""
     });
   });
 
@@ -774,9 +780,14 @@ function renderSections(sections) {
               })()
             : "";
 
+        const logoHtml = item.logo
+          ? `<span class="quick-row-logo"><img src="${escapeHtml(item.logo)}" alt="" loading="lazy" /></span>`
+          : "";
+
         return `
           ${groupHeader}
           <div class="quick-row" data-id="${id}">
+            ${logoHtml}
             <span class="quick-row-body">
               <span class="quick-row-name">${escapeHtml(item.name)}</span>
               ${item.description ? `<span class="quick-row-desc">${escapeHtml(item.description)}</span>` : ""}

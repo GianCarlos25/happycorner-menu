@@ -93,71 +93,6 @@ header.hero {
   padding-bottom: 0;
 }
 
-@keyframes heroGradientShift {
-  0%, 100% { background-position: 0% 30%; }
-  50%       { background-position: 100% 70%; }
-}
-
-/* Blobs decorativos del hero — círculos grandes difuminados */
-header.hero::before,
-header.hero::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Blob rosa — esquina superior izquierda, grande */
-header.hero::before {
-  width: 420px;
-  height: 420px;
-  top: -160px;
-  left: -120px;
-  background: radial-gradient(circle at center, var(--pink) 0%, transparent 68%);
-  opacity: 0.5;
-  animation: heroBlobFloat 10s ease-in-out infinite;
-}
-
-/* Blob morado — esquina inferior derecha, grande */
-header.hero::after {
-  width: 380px;
-  height: 380px;
-  bottom: -100px;
-  right: -100px;
-  background: radial-gradient(circle at center, var(--purple) 0%, transparent 68%);
-  opacity: 0.55;
-  animation: heroBlobFloat 13s ease-in-out infinite reverse;
-}
-
-/* Tercer blob naranja centrado-abajo vía hero-wrap */
-.hero-wrap::before {
-  content: "";
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  bottom: -80px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at center, var(--orange) 0%, transparent 68%);
-  opacity: 0.3;
-  pointer-events: none;
-  z-index: 0;
-  animation: heroBlobFloat 8s ease-in-out infinite 2s;
-}
-
-.hero-wrap {
-  position: relative;
-  padding-bottom: 0;
-}
-
-@keyframes heroBlobFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(18px, -14px) scale(1.08); }
-  66%       { transform: translate(-10px, 20px) scale(0.95); }
-}
-
 /* Logo centrado en el hero */
 .logo-badge { display: none; }
 .logo { display: none; }
@@ -298,10 +233,6 @@ header.hero::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  header.hero::before,
-  header.hero::after {
-    animation: none;
-  }
   .hero-cta i,
   .hero-cta .fa-icon {
     animation: none;

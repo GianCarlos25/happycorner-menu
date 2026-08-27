@@ -1583,3 +1583,19 @@ section.menu-section.is-visible .section-heading .fa-icon {
   color: var(--pink);
   text-decoration: underline;
 }
+
+/* Subtítulo opcional de grupo dentro de una quick-list (columna "Grupo"
+   del Sheet), p.ej. "De barril" / "En botella" — corta listas largas en
+   bloques cortos sin salir de una tarjeta ni añadir otra sección. */
+.quick-group-title {
+  margin: 0;
+  padding: 10px 16px 4px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--section-color, var(--pink));
+  background: rgba(91, 44, 135, 0.03);
+  border-bottom: 1px solid rgba(91, 44, 135, 0.08);
+}

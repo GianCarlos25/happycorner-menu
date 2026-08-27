@@ -1638,3 +1638,31 @@ section.menu-section.is-visible .section-heading .fa-icon {
   line-height: 1.4;
   white-space: nowrap;
 }
+
+.footer-social {
+  display: flex;
+  gap: 10px;
+  margin: 4px 0 14px;
+}
+
+.footer-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.6);
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-social a .fa-icon {
+  font-size: 15px;
+}
+
+.footer-social a:hover {
+  color: var(--pink);
+  border-color: var(--pink);
+  transform: translateY(-2px);
+}

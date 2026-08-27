@@ -83,71 +83,85 @@ const ALLERGENS = {
   gluten: {
     label: "Gluten",
     icon: "fa-wheat-awn",
+    color: "#c17a3d",
     keywords: ["pan", "harina", "trigo", "cerveza", "pasta", "focaccia", "empanado", "rebozado", "cebada", "centeno", "masa", "molde"]
   },
   crustaceos: {
     label: "Crustáceos",
     icon: "fa-shrimp",
+    color: "#8a2e2e",
     keywords: ["gamba", "langostino", "cigala", "marisco", "camarón", "camaron"]
   },
   huevo: {
     label: "Huevo",
     icon: "fa-egg",
+    color: "#d9a400",
     keywords: ["huevo", "mayonesa", "alioli", "tortilla", "césar", "cesar"]
   },
   pescado: {
     label: "Pescado",
     icon: "fa-fish",
+    color: "#2f7d9e",
     keywords: ["atún", "atun", "salmón", "salmon", "anchoa", "bacalao", "merluza", "boquerón", "boqueron"]
   },
   moluscos: {
     label: "Moluscos",
     icon: "fa-water",
+    color: "#6b6f7a",
     keywords: ["pulpo", "calamar", "mejillón", "mejillon", "almeja", "sepia"]
   },
   cacahuete: {
     label: "Cacahuete",
     icon: "fa-seedling",
+    color: "#a9762d",
     keywords: ["cacahuete", "maní", "mani"]
   },
   frutos_cascara: {
     label: "Frutos de cáscara",
     icon: "fa-tree",
+    color: "#5c3a21",
     keywords: ["almendra", "avellana", "nuez", "nueces", "pistacho", "anacardo", "piñón", "pinon", "macadamia", "nutella"]
   },
   soja: {
     label: "Soja",
     icon: "fa-leaf",
+    color: "#6b8f3c",
     keywords: ["soja", "edamame"]
   },
   lacteos: {
     label: "Lácteos",
     icon: "fa-cheese",
+    color: "#7a4fa0",
     keywords: ["queso", "leche", "nata", "mantequilla", "yogur", "crema", "parmesano", "cheddar", "provolone", "edam", "dulce de leche"]
   },
   apio: {
     label: "Apio",
     icon: "fa-carrot",
+    color: "#4f9153",
     keywords: ["apio"]
   },
   mostaza: {
     label: "Mostaza",
     icon: "fa-bottle-droplet",
+    color: "#d4a017",
     keywords: ["mostaza", "mielmostaza", "miel mostaza", "miel-mostaza"]
   },
   sesamo: {
     label: "Sésamo",
     icon: "fa-circle-dot",
+    color: "#b08d57",
     keywords: ["sésamo", "sesamo", "ajonjolí", "ajonjoli", "tahini"]
   },
   sulfitos: {
     label: "Sulfitos",
     icon: "fa-wine-glass",
+    color: "#2f6fa8",
     keywords: ["vino", "sidra", "vinagre de vino", "tinto de verano"]
   },
   altramuces: {
     label: "Altramuces",
     icon: "fa-seedling",
+    color: "#c9962c",
     keywords: ["altramuces", "lupino"]
   }
 };
@@ -177,7 +191,7 @@ function renderAllergenIcons(ingredientsRaw) {
   if (!keys.length) return "";
   return `<div class="allergen-icons">${keys.map((key) => {
     const a = ALLERGENS[key];
-    return `<span class="allergen-icon" title="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
+    return `<span class="allergen-icon" style="--allergen-color:${a.color}" title="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
   }).join("")}</div>`;
 }
 

@@ -1006,7 +1006,7 @@ section.menu-section.is-visible .section-heading .fa-icon {
 
 /* === Rich dark footer === */
 .site-footer {
-  background: var(--coffee-deep);
+  background: #497978;
   color: rgba(255,255,255,0.8);
   margin-top: 40px;
   position: relative;

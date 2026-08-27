@@ -188,15 +188,21 @@ function detectAllergens(ingredientsRaw) {
 // que no cambia nada en los platos que aún no la tengan rellenada.
 function renderAllergenIcons(ingredientsRaw) {
   const keys = detectAllergens(ingredientsRaw);
-  if (!keys.length) return "";
+  // "Halal" no es un alérgeno: es un aviso aparte, así que se detecta con
+  // la misma palabra suelta en "Ingredientes" pero se pinta como una
+  // etiqueta de texto discreta, no como un icono de color más.
+  const isHalal = normalizeForMatch(ingredientsRaw).includes("halal");
+  if (!keys.length && !isHalal) return "";
   // Sin "title": en móvil (donde se usa esta carta casi siempre) el
   // title no se ve nunca porque no hay "pasar el ratón por encima". En
   // su lugar, data-label + setupAllergenTooltips() más abajo muestran el
   // nombre al TOCAR el icono, en cualquier dispositivo.
-  return `<div class="allergen-icons">${keys.map((key) => {
+  const iconsHtml = keys.map((key) => {
     const a = ALLERGENS[key];
     return `<span class="allergen-icon" style="--allergen-color:${a.color}" data-label="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}" role="button" tabindex="0"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
-  }).join("")}</div>`;
+  }).join("");
+  const halalHtml = isHalal ? `<span class="halal-tag">Halal</span>` : "";
+  return `<div class="allergen-icons">${iconsHtml}${halalHtml}</div>`;
 }
 
 // Al tocar/pulsar un icono de alérgeno aparece su nombre un par de

@@ -1408,6 +1408,46 @@ section.menu-section.is-visible .section-heading .fa-icon {
   letter-spacing: normal;
 }
 
+/* Dos tamaños (columna "Precio grande" del Sheet): etiqueta pequeña
+   encima de cada precio, alineados en la misma esquina que el precio
+   único de siempre. */
+.price-sizes {
+  display: inline-flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.price-size {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+}
+
+.price-size-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Aviso cuando el Sheet no responde y se enseña la carta de menu.json. */
+.fallback-notice {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(252, 208, 51, 0.25);
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.allergen-icon:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
 .allergen-icon {
   position: relative;
   display: inline-flex;

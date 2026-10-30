@@ -33,8 +33,17 @@ const SECTION_COLORS = ["#e6007e", "#5b2c87", "#e07200"];
 // Icono conocido para las secciones originales. Cualquier sección nueva
 // que se añada desde el Sheet (con un nombre distinto) recibe el icono
 // genérico "plate" automáticamente.
+// Las claves van en minúsculas y con los espacios repetidos reducidos a
+// uno (ver sectionKey), así "Bocadillos  & Sándwich" con doble espacio en
+// el Sheet sigue encontrando su icono.
 const KNOWN_SECTION_ICONS = {
   "desayunos": "toast",
+  "bocadillos & sándwich": "sandwich",
+  "cafés": "coffee",
+  "cafes": "coffee",
+  "expressos & matcha": "coffee",
+  "espressos & matcha": "coffee",
+  "matcha": "matcha",
   "los favoritos": "star",
   "picoteo": "share",
   "postres": "cone",
@@ -60,6 +69,8 @@ const ICONS = {
   beer: `<i class="fa-solid fa-beer-mug-empty fa-icon" aria-hidden="true"></i>`,
   drink: `<i class="fa-solid fa-glass-water fa-icon" aria-hidden="true"></i>`,
   sandwich: `<i class="fa-solid fa-hotdog fa-icon" aria-hidden="true"></i>`,
+  coffee: `<i class="fa-solid fa-mug-hot fa-icon" aria-hidden="true"></i>`,
+  matcha: `<i class="fa-solid fa-leaf fa-icon" aria-hidden="true"></i>`,
   plate: `<i class="fa-solid fa-bowl-food fa-icon" aria-hidden="true"></i>`,
   camera: `<i class="fa-solid fa-camera fa-icon" aria-hidden="true"></i>`,
   plus: `<i class="fa-solid fa-plus fa-icon" aria-hidden="true"></i>`
@@ -120,19 +131,21 @@ const ALLERGENS = {
     label: "Frutos de cáscara",
     icon: "fa-tree",
     color: "#5c3a21",
-    keywords: ["almendra", "avellana", "nuez", "nueces", "pistacho", "anacardo", "piñón", "pinon", "macadamia", "nutella"]
+    keywords: ["almendra", "avellana", "nuez", "nueces", "pistacho", "anacardo", "piñón", "pinon", "macadamia", "nutella", "frutos secos", "frutos de cáscara"]
   },
   soja: {
     label: "Soja",
     icon: "fa-leaf",
     color: "#6b8f3c",
-    keywords: ["soja", "edamame"]
+    // Nutella lleva lecitina de soja.
+    keywords: ["soja", "edamame", "nutella"]
   },
   lacteos: {
     label: "Lácteos",
     icon: "fa-cheese",
     color: "#7a4fa0",
-    keywords: ["queso", "leche", "nata", "mantequilla", "yogur", "crema", "parmesano", "cheddar", "provolone", "edam", "dulce de leche"]
+    // Nutella lleva leche desnatada en polvo.
+    keywords: ["queso", "leche", "nata", "mantequilla", "yogur", "crema", "parmesano", "cheddar", "provolone", "edam", "gouda", "dulce de leche", "lácteos", "lacteos", "nutella"]
   },
   apio: {
     label: "Apio",
@@ -156,7 +169,7 @@ const ALLERGENS = {
     label: "Sulfitos",
     icon: "fa-wine-glass",
     color: "#2f6fa8",
-    keywords: ["vino", "sidra", "vinagre de vino", "tinto de verano"]
+    keywords: ["vino", "sidra", "vinagre de vino", "tinto de verano", "sulfitos"]
   },
   altramuces: {
     label: "Altramuces",
@@ -175,11 +188,29 @@ function normalizeForMatch(str) {
     .replace(/[̀-ͯ]/g, "");
 }
 
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Busca la palabra clave como palabra (o expresión) completa, admitiendo
+// el plural con "s"/"es": "pan" encuentra "pan" y "panes", pero no
+// "panceta"; "nuez" encuentra "nuez" pero no un trozo de otra palabra.
+// Antes se buscaba como trozo de texto y daba falsos positivos.
+function keywordToRegExp(keyword) {
+  return new RegExp(`(?:^|[^a-z0-9])${escapeRegExp(normalizeForMatch(keyword))}(?:e?s)?(?=[^a-z0-9]|$)`);
+}
+
+// Las expresiones se construyen una sola vez, no en cada plato.
+const ALLERGEN_PATTERNS = Object.fromEntries(
+  Object.entries(ALLERGENS).map(([key, a]) => [key, a.keywords.map(keywordToRegExp)])
+);
+const HALAL_PATTERN = keywordToRegExp("halal");
+
 function detectAllergens(ingredientsRaw) {
   if (!ingredientsRaw) return [];
   const text = normalizeForMatch(ingredientsRaw);
-  return Object.keys(ALLERGENS).filter((key) =>
-    ALLERGENS[key].keywords.some((kw) => text.includes(normalizeForMatch(kw)))
+  return Object.keys(ALLERGEN_PATTERNS).filter((key) =>
+    ALLERGEN_PATTERNS[key].some((pattern) => pattern.test(text))
   );
 }
 
@@ -191,7 +222,7 @@ function renderAllergenIcons(ingredientsRaw) {
   // "Halal" no es un alérgeno: es un aviso aparte, así que se detecta con
   // la misma palabra suelta en "Ingredientes" pero se pinta como una
   // etiqueta de texto discreta, no como un icono de color más.
-  const isHalal = normalizeForMatch(ingredientsRaw).includes("halal");
+  const isHalal = HALAL_PATTERN.test(normalizeForMatch(ingredientsRaw));
   if (!keys.length && !isHalal) return "";
   // Sin "title": en móvil (donde se usa esta carta casi siempre) el
   // title no se ve nunca porque no hay "pasar el ratón por encima". En
@@ -211,27 +242,39 @@ function renderAllergenIcons(ingredientsRaw) {
 // cualquier plato aunque la carta se vuelva a pintar — e, importante,
 // funciona igual esté el carrito (CART_ENABLED) activado o no, porque
 // no depende de setupCartUI().
+function toggleAllergenTip(icon) {
+  document.querySelectorAll(".allergen-icon.show-tip").forEach((el) => {
+    if (el !== icon) {
+      el.classList.remove("show-tip");
+      clearTimeout(el._tipTimer);
+    }
+  });
+
+  if (!icon) return;
+
+  const isShown = icon.classList.toggle("show-tip");
+  clearTimeout(icon._tipTimer);
+  if (isShown) {
+    icon._tipTimer = setTimeout(() => icon.classList.remove("show-tip"), 2200);
+  }
+}
+
 function setupAllergenTooltips() {
   const main = document.getElementById("menu-sections");
   if (!main) return;
 
   main.addEventListener("click", (e) => {
+    toggleAllergenTip(e.target.closest(".allergen-icon"));
+  });
+
+  // Los iconos llevan role="button" y tabindex="0": con teclado se abren
+  // con Enter o Espacio, igual que un botón normal.
+  main.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
     const icon = e.target.closest(".allergen-icon");
-
-    document.querySelectorAll(".allergen-icon.show-tip").forEach((el) => {
-      if (el !== icon) {
-        el.classList.remove("show-tip");
-        clearTimeout(el._tipTimer);
-      }
-    });
-
     if (!icon) return;
-
-    const isShown = icon.classList.toggle("show-tip");
-    clearTimeout(icon._tipTimer);
-    if (isShown) {
-      icon._tipTimer = setTimeout(() => icon.classList.remove("show-tip"), 2200);
-    }
+    e.preventDefault();
+    toggleAllergenTip(icon);
   });
 }
 
@@ -270,6 +313,13 @@ const FLAGSHIP_EXTRAS_TITLES = new Set([
   "complementos/kürtőskalács",
   "complementos"
 ]);
+
+// Clave para comparar nombres de sección escritos a mano en el Sheet:
+// minúsculas, sin espacios al principio/final y con los espacios
+// repetidos reducidos a uno.
+function sectionKey(title) {
+  return String(title || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
 
 function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -315,6 +365,20 @@ function formatDisplayPrice(raw) {
   if (!trimmed) return "";
   const looksNumeric = /^\d+([.,]\d{1,2})?\s*€?$/.test(trimmed);
   return looksNumeric ? formatPrice(parsePrice(trimmed)) : trimmed;
+}
+
+// Precio de un plato listo para pintar. Con "Precio grande" relleno se
+// pintan dos precios con su etiqueta de tamaño; si no, el precio de
+// siempre con la misma clase CSS que ya usaba cada tipo de fila.
+function renderPrice(item, priceClass) {
+  const price = escapeHtml(formatDisplayPrice(item.price));
+  if (!item.priceLarge) return `<span class="${priceClass}">${price}</span>`;
+  const priceLarge = escapeHtml(formatDisplayPrice(item.priceLarge));
+  return `
+    <span class="price-sizes">
+      <span class="price-size"><span class="price-size-label">Pequeño</span><span class="${priceClass}">${price}</span></span>
+      <span class="price-size"><span class="price-size-label">Grande</span><span class="${priceClass}">${priceLarge}</span></span>
+    </span>`;
 }
 
 /* ---------- Parser de CSV sencillo (soporta comillas y comas dentro de texto) ---------- */
@@ -365,10 +429,13 @@ function sheetRowsToSections(rows) {
   rows.forEach((r) => {
     const title = r["sección"] || r["seccion"] || "";
     const visible = (r["visible"] || "si").toLowerCase();
-    if (!title || visible === "no") return;
+    const name = r["plato"] || r["nombre"] || "";
+    // Una fila sin nombre de plato (p. ej. una fila a medio borrar en el
+    // Sheet) no se pinta: antes salía como un plato vacío.
+    if (!title || !name || visible === "no") return;
 
     if (!byTitle.has(title)) {
-      const knownPhoto = KNOWN_SECTION_PHOTOS[title.trim().toLowerCase()];
+      const knownPhoto = KNOWN_SECTION_PHOTOS[sectionKey(title)];
       const section = {
         id: title
           .toLowerCase()
@@ -377,7 +444,7 @@ function sheetRowsToSections(rows) {
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, ""),
         title,
-        icon: KNOWN_SECTION_ICONS[title.trim().toLowerCase()] || "plate",
+        icon: KNOWN_SECTION_ICONS[sectionKey(title)] || "plate",
         featuredImage: knownPhoto ? knownPhoto.image : null,
         featuredImageAlt: knownPhoto ? knownPhoto.alt : "",
         // Miniatura del círculo de categoría (selector de arriba), fijada
@@ -416,9 +483,13 @@ function sheetRowsToSections(rows) {
     }
 
     section.items.push({
-      name: r["plato"] || r["nombre"] || "",
+      name,
       description: r["descripción"] || r["descripcion"] || "",
       price: r["precio"] || "",
+      // Columna opcional "Precio grande": si se rellena, el plato se
+      // muestra con dos tamaños ("Pequeño" = columna Precio, "Grande" =
+      // esta). Vacía, el plato se ve igual que siempre, con un solo precio.
+      priceLarge: r["precio grande"] || "",
       image: r["imagen"] || r["foto"] || r["image"] || "",
       // Columna opcional "Ingredientes" del Sheet: solo hace falta poner
       // los ingredientes que puedan dar alergia, separados por comas — de
@@ -647,7 +718,7 @@ function renderHero(restaurant) {
 // navegación — se cuelgan dentro de la tarjeta del producto al que
 // pertenecen (ver renderFlagshipCard/renderFlagshipExtras).
 function getVisibleSections(sections) {
-  return sections.filter((s) => !FLAGSHIP_EXTRAS_TITLES.has(s.title.trim().toLowerCase()));
+  return sections.filter((s) => !FLAGSHIP_EXTRAS_TITLES.has(sectionKey(s.title)));
 }
 
 // Miniatura de una categoría para el selector de navegación: usa la foto
@@ -712,9 +783,14 @@ function activateSection(sectionId) {
     }
   });
 
+  // Se desplaza hasta la carta descontando la barra de categorías, que es
+  // "sticky": antes quedaba encima del título de la sección y lo tapaba.
   const main = document.getElementById("menu-sections");
-  if (main && typeof main.scrollIntoView === "function") {
-    main.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+  if (main) {
+    const nav = document.getElementById("section-nav");
+    const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+    const top = main.getBoundingClientRect().top + window.scrollY - navHeight - 8;
+    window.scrollTo({ top: Math.max(0, top), behavior: prefersReducedMotion() ? "auto" : "smooth" });
   }
 }
 
@@ -737,7 +813,7 @@ function renderSections(sections) {
   // estrella (ver renderFlagshipCard). Si no hay ninguna sección con ese
   // nombre, esto no cambia nada del resto del menú.
   const extrasSection = sections.find((s) =>
-    FLAGSHIP_EXTRAS_TITLES.has(s.title.trim().toLowerCase())
+    FLAGSHIP_EXTRAS_TITLES.has(sectionKey(s.title))
   );
   const visibleSections = getVisibleSections(sections);
 
@@ -748,7 +824,7 @@ function renderSections(sections) {
     const items = section.items || [];
 
     const isFlagship =
-      FLAGSHIP_SWITCHER_SECTIONS.has(section.title.trim().toLowerCase()) && items.length > 1;
+      FLAGSHIP_SWITCHER_SECTIONS.has(sectionKey(section.title)) && items.length > 1;
 
     // Secciones sin ninguna foto (bebidas, bocadillos...) se leen mejor
     // como una lista compacta de "escaneo rápido" (nombre a la izquierda,
@@ -800,7 +876,7 @@ function renderSections(sections) {
               ${renderAllergenIcons(item.ingredients)}
             </span>
             <span class="quick-row-end">
-              <span class="quick-row-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
+              ${renderPrice(item, "quick-row-price")}
               <span class="dish-actions-slot" data-actions-for="${id}">${renderDishActions(id)}</span>
             </span>
           </div>`;
@@ -823,7 +899,7 @@ function renderSections(sections) {
               ${renderAllergenIcons(item.ingredients)}
             </div>
             <div class="dish-actions-row">
-              <span class="dish-price">${escapeHtml(formatDisplayPrice(item.price))}</span>
+              ${renderPrice(item, "dish-price")}
               <span class="dish-actions-slot" data-actions-for="${id}">${renderDishActions(id)}</span>
             </div>
           </div>
@@ -975,41 +1051,82 @@ function setupFlagshipSwitchers() {
   });
 }
 
+// Si Google tarda más que esto, se usa la carta de respaldo de menu.json
+// en vez de dejar al cliente mirando el esqueleto de carga.
+const SHEET_TIMEOUT_MS = 8000;
+
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Lanza un error (en vez de devolver una carta vacía o rota) si la
+// respuesta no es la hoja esperada: error HTTP, hoja no compartida
+// (Google devuelve una página HTML de acceso) o sin ningún plato visible.
 async function loadFromSheet(url) {
-  const res = await fetch(`${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`, { cache: "no-store" });
-  const text = await res.text();
-  const rows = parseCSV(text);
-  return sheetRowsToSections(rows);
+  const res = await fetchWithTimeout(
+    `${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`,
+    { cache: "no-store" },
+    SHEET_TIMEOUT_MS
+  );
+  if (!res.ok) throw new Error(`El Sheet respondió ${res.status}`);
+
+  const rows = parseCSV(await res.text());
+  const first = rows[0] || {};
+  const hasExpectedColumns =
+    ("sección" in first || "seccion" in first) && ("plato" in first || "nombre" in first);
+  if (!hasExpectedColumns) throw new Error("La respuesta del Sheet no tiene las columnas de la carta");
+
+  const sections = sheetRowsToSections(rows);
+  if (!sections.length) throw new Error("El Sheet no tiene ningún plato visible");
+  return sections;
 }
 
 async function loadFromLocalJSON() {
   const res = await fetch(`${JSON_URL}?v=${Date.now()}`, { cache: "no-store" });
-  const data = await res.json();
-  return data;
+  if (!res.ok) throw new Error(`menu.json respondió ${res.status}`);
+  return res.json();
+}
+
+// Aviso discreto cuando se enseña la carta de respaldo: sus precios
+// pueden no coincidir con los del Sheet, y el cliente debe saberlo.
+function renderFallbackNotice() {
+  const main = document.getElementById("menu-sections");
+  main.insertAdjacentHTML(
+    "afterbegin",
+    `<p class="fallback-notice" role="status">Estás viendo una versión guardada de la carta. Los precios pueden no estar actualizados: consulta con nuestro personal.</p>`
+  );
 }
 
 async function init() {
   renderSkeleton();
   try {
-    let restaurant, sections, footer;
+    // Los textos fijos (cabecera, nota, pie) vienen siempre de menu.json,
+    // y sus platos sirven de respaldo si el Sheet no está disponible.
+    const local = await loadFromLocalJSON();
+    const restaurant = local.restaurant || {};
+    const footer = local.footer || "";
+    let sections = local.sections || [];
+    let usingFallback = false;
 
     if (typeof SHEET_CSV_URL === "string" && SHEET_CSV_URL.trim()) {
-      // Contenido dinámico desde el Google Sheet. Los textos fijos
-      // (cabecera, nota, pie) siguen viniendo de menu.json.
-      const local = await loadFromLocalJSON();
-      restaurant = local.restaurant || {};
-      footer = local.footer || "";
-      sections = await loadFromSheet(SHEET_CSV_URL);
-    } else {
-      const local = await loadFromLocalJSON();
-      restaurant = local.restaurant || {};
-      footer = local.footer || "";
-      sections = local.sections || [];
+      try {
+        sections = await loadFromSheet(SHEET_CSV_URL);
+      } catch (err) {
+        usingFallback = true;
+        console.warn("No se ha podido leer el Sheet; se usa la carta de menu.json", err);
+      }
     }
 
     renderHero(restaurant);
     renderNav(sections);
     renderSections(sections);
+    if (usingFallback) renderFallbackNotice();
     document.getElementById("footer-text").textContent = footer;
     setupSectionSwitcher(sections);
     setupAllergenTooltips();

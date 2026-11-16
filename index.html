@@ -2,92 +2,88 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Happy Corner · Carta</title>
-<meta name="description" content="Carta de especialidades y desayunos de Happy Corner." />
-<meta name="theme-color" content="#ffc531" />
+<meta name="description" content="Carta de Happy Corner, tu rincón feliz con sabor a tradición en Torrent." />
+<meta name="theme-color" content="#6A00FF" />
 
-<!-- Open Graph: vista previa bonita al compartir el enlace por WhatsApp,
-     Instagram, etc. Si cambiáis el dominio (Netlify/GitHub Pages/dominio
-     propio), actualizad "og:url" y "og:image" con la URL nueva. -->
+<!-- Open Graph: vista previa al compartir el enlace por WhatsApp, Instagram, etc. -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Happy Corner · Carta" />
-<meta property="og:description" content="Carta de especialidades y desayunos de Happy Corner." />
+<meta property="og:description" content="Tu rincón feliz, con sabor a tradición. Carta de Happy Corner en Torrent." />
 <meta property="og:image" content="https://giancarlos25.github.io/happycorner-menu/assets/desayuno.jpg" />
 <meta property="og:url" content="https://giancarlos25.github.io/happycorner-menu/" />
 <meta name="twitter:card" content="summary_large_image" />
 
 <link rel="icon" href="assets/logo.png" />
 
-<!-- Tipografía: Fredoka para títulos (redondeada, con carácter, a juego
-     con el logo) + Poppins para el texto de cuerpo. -->
+<!-- Tipografías del manual de marca: Bebas Neue (títulos) y Montserrat (texto). -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
-
-<!-- Iconos: Font Awesome (gratis, vía CDN) en vez de los SVG genéricos
-     dibujados a mano — mismo criterio en toda la web. -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <header class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-texture"></div>
+    <!-- La sonrisa del logotipo, dibujada en grande como recurso gráfico. -->
+    <svg class="hero-smile" viewBox="0 0 1100 760">
+      <path class="smile-arc" d="M120 150 C 260 600, 840 600, 980 150" />
+      <path class="smile-cap" d="M60 230 L 170 120" />
+      <path class="smile-cap" d="M1040 230 L 930 120" />
+    </svg>
+    <img class="hero-float f1" src="assets/brand/icons/cafe.png" alt="" />
+    <img class="hero-float f2" src="assets/brand/icons/kurtos.png" alt="" />
+    <img class="hero-float f3" src="assets/brand/icons/croissant.png" alt="" />
+    <img class="hero-float f4" src="assets/brand/icons/helado.png" alt="" />
+  </div>
+
   <div class="wrap hero-wrap">
-    <div class="hero-logo-wrap">
-      <img class="hero-logo" src="assets/logo.png" alt="Happy Corner" />
-    </div>
-    <p class="hero-tagline" id="hero-tagline">¡Desayuna bien!</p>
+    <p class="hero-kicker">Torrent · Valencia</p>
+    <img class="hero-logo" src="assets/brand/logo-blanco.png" alt="Happy Corner" />
+    <h1 class="hero-title">Tu rincón feliz,<br /><span>con sabor a tradición</span></h1>
+    <p class="hero-tagline" id="hero-tagline" hidden></p>
     <p class="hero-subtitle" id="hero-subtitle"></p>
     <p class="hero-note" id="hero-note"></p>
     <a href="#menu-sections" class="hero-cta">
-      Ver Menú&ensp;<i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+      Ver la carta
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 4h2v12.2l4.6-4.6 1.4 1.4-7 7-7-7 1.4-1.4 4.6 4.6z"/></svg>
     </a>
   </div>
   <div class="hero-photo" id="hero-photo" hidden></div>
-  <div class="hero-wave" aria-hidden="true">
-    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" />
-      <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" />
-      <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" />
-    </svg>
-  </div>
 </header>
 
-<nav class="section-nav" id="section-nav"></nav>
+<nav class="section-nav" id="section-nav" aria-label="Categorías de la carta"></nav>
 
-<div class="wrap" style="padding: 0 18px 40px;">
+<div class="wrap menu-wrap">
   <main id="menu-sections"></main>
 </div>
 
 <footer class="site-footer">
-  <div class="site-footer-accent"></div>
+  <div class="site-footer-accent" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   <div class="wrap site-footer-top">
     <div class="footer-col footer-brand">
-      <img src="assets/logo.png" alt="Happy Corner" class="footer-logo-img" />
-      <p class="footer-tagline">Cafetería · Tu rincón feliz para disfrutar de los mejores desayunos y postres artesanales.</p>
+      <img src="assets/brand/logo-blanco.png" alt="Happy Corner" class="footer-logo-img" />
+      <p class="footer-claim">Cada bocado,<br />una sonrisa</p>
       <div class="footer-social">
-        <a href="https://www.instagram.com/happycornervlc.1/" target="_blank" rel="noopener" aria-label="Instagram de Happy Corner">
-          <i class="fa-brands fa-instagram fa-icon" aria-hidden="true"></i>
-        </a>
-        <a href="https://www.tiktok.com/@happy.cornervlc44" target="_blank" rel="noopener" aria-label="TikTok de Happy Corner">
-          <i class="fa-brands fa-tiktok fa-icon" aria-hidden="true"></i>
-        </a>
+        <a href="https://www.instagram.com/happycornervlc.1/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@happy.cornervlc44" target="_blank" rel="noopener">TikTok</a>
       </div>
-      <p class="footer-legal" id="footer-text"></p>
     </div>
     <div class="footer-col footer-hours">
-      <h6 class="footer-col-title">Horario</h6>
+      <h2 class="footer-col-title">Horario</h2>
       <ul>
-        <li>Lunes – Jueves<span>9:00–14:30, 16:30–23:30</span></li>
-        <li>Viernes<span>9:00–14:30, 16:30–24:00</span></li>
-        <li>Sábado<span>10:00–14:30, 16:30–24:00</span></li>
-        <li>Domingo<span>10:00–14:30, 16:30–23:30</span></li>
+        <li>Lunes – Jueves<span>9:00–14:30 · 16:30–23:30</span></li>
+        <li>Viernes<span>9:00–14:30 · 16:30–24:00</span></li>
+        <li>Sábado<span>10:00–14:30 · 16:30–24:00</span></li>
+        <li>Domingo<span>10:00–14:30 · 16:30–23:30</span></li>
       </ul>
     </div>
     <div class="footer-col footer-contact">
-      <h6 class="footer-col-title">Encuéntranos</h6>
+      <h2 class="footer-col-title">Encuéntranos</h2>
       <address>
         <p><a href="https://www.google.com/maps/place//data=!4m2!3m1!1s0xd60518abe2132eb:0x2d3b30c1e636f94f?sa=X&ved=1t:8290&ictx=111" target="_blank" rel="noopener">Plaza Unión Musical, 5<br />46900 Torrent, Valencia</a></p>
         <p><a href="mailto:happycornertorrent@gmail.com">happycornertorrent@gmail.com</a></p>
@@ -95,7 +91,7 @@
     </div>
   </div>
   <div class="wrap site-footer-bottom">
-    <p class="brand-line">Happy Corner</p>
+    <p class="footer-legal" id="footer-text"></p>
     <div class="footer-legal-group">
       <p class="footer-copyright">&copy; 2026 Happy Corner · Todos los derechos reservados.</p>
       <p class="footer-credit">Sitio creado por <a href="https://www.linkedin.com/in/gian-carlos-samaniego-herrera-816123241/" target="_blank" rel="noopener">Gian Carlos</a></p>
@@ -103,11 +99,10 @@
   </div>
 </footer>
 
-<!-- Botón flotante + panel "Mi Selección" (modelo híbrido, sin pago: el
-     cliente arma su pedido aquí y se lo enseña/lee al camarero). -->
+<!-- Botón flotante + panel "Mi Selección" (desactivado con CART_ENABLED en script.js). -->
 <button type="button" class="cart-fab" id="cart-fab" aria-label="Ver mi selección">
   <span class="cart-fab-icon">
-    <i class="fa-solid fa-bag-shopping fa-icon" aria-hidden="true"></i>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 7V6a5 5 0 0 1 10 0v1h3l-1 14H5L4 7zm2 0h6V6a3 3 0 0 0-6 0z"/></svg>
     <span class="cart-fab-count" id="cart-count-badge">0</span>
   </span>
   <span class="cart-fab-info">
@@ -122,7 +117,9 @@
   <div class="cart-drawer-handle"></div>
   <div class="cart-drawer-header">
     <h2 id="cart-drawer-title">Mi Selección</h2>
-    <button type="button" class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar"><i class="fa-solid fa-xmark fa-icon" aria-hidden="true"></i></button>
+    <button type="button" class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg>
+    </button>
   </div>
   <div class="cart-drawer-list" id="cart-items"></div>
   <div class="cart-drawer-footer">

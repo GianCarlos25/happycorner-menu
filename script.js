@@ -24,11 +24,23 @@ const CART_STORAGE_KEY = "happycorner_cart_v1";
 // esta constante en true otra vez.
 const CART_ENABLED = false;
 
-// El color de cada sección alterna automáticamente según su posición,
-// igual que en la carta impresa — nunca hace falta tocar el diseño.
-// Los 3 colores son, a propósito, los 3 colores del logo (rosa, morado,
-// naranja de la sonrisa), para que la web se sienta más "de la marca".
-const SECTION_COLORS = ["#e6007e", "#5b2c87", "#e07200"];
+// Cada sección toma un tema de la paleta oficial del manual de marca
+// (Púrpura Soñador, Magenta Feliz, Naranja Cálido, Amarillo Radiante),
+// alternando por posición: nunca hace falta tocar el diseño al añadir
+// secciones desde el Sheet. "price" es el color del precio sobre fondo
+// blanco (en amarillo no se leería, por eso ahí va en púrpura).
+const SECTION_THEMES = [
+  { bg: "#6A00FF", ink: "#FFFFFF", accent: "#FFDD00", price: "#6A00FF", icon: "none" },
+  { bg: "#FF0099", ink: "#FFFFFF", accent: "#FFDD00", price: "#FF0099", icon: "none" },
+  { bg: "#FF6600", ink: "#FFFFFF", accent: "#0B0B0B", price: "#E85D00", icon: "none" },
+  // Sobre amarillo el icono blanco no se ve: se pinta en Negro Elegante.
+  { bg: "#FFDD00", ink: "#0B0B0B", accent: "#6A00FF", price: "#6A00FF", icon: "brightness(0)" }
+];
+
+function themeVars(i) {
+  const t = SECTION_THEMES[i % SECTION_THEMES.length];
+  return `--sec-bg:${t.bg};--sec-ink:${t.ink};--sec-accent:${t.accent};--section-color:${t.price};--icon-filter:${t.icon}`;
+}
 
 // Icono conocido para las secciones originales. Cualquier sección nueva
 // que se añada desde el Sheet (con un nombre distinto) recibe el icono
@@ -56,24 +68,24 @@ const KNOWN_SECTION_ICONS = {
   "bocadillos": "sandwich"
 };
 
-// Iconos Font Awesome (vía CDN, cargado en index.html) en vez de SVG
-// dibujados a mano. La clase "fa-icon" es la que engancha con el tamaño
-// y color definidos en style.css (los mismos sitios de siempre: cabecera
-// de sección, botón "Añadir", placeholder de foto, carrito).
+// Iconos del set oficial del manual de marca (assets/brand/icons, trazo
+// blanco sobre transparente). La clave de cada sección (KNOWN_SECTION_ICONS)
+// elige su dibujo; una sección nueva recibe "plate" (el donut).
+const BRAND_ICON_FILES = {
+  toast: "pan", star: "patatas", share: "empanada", cone: "kurtos",
+  fruit: "helado", beer: "bebida", drink: "bebida", sandwich: "barra",
+  coffee: "cafe", matcha: "cafe", plate: "donut"
+};
+
+function brandIcon(key) {
+  const file = BRAND_ICON_FILES[key] || BRAND_ICON_FILES.plate;
+  return `<img class="brand-icon" src="assets/brand/icons/${file}.png" alt="" aria-hidden="true" />`;
+}
+
+// Iconos de interfaz pequeños, en SVG para no depender de librerías.
 const ICONS = {
-  toast: `<i class="fa-solid fa-bread-slice fa-icon" aria-hidden="true"></i>`,
-  star: `<i class="fa-solid fa-star fa-icon" aria-hidden="true"></i>`,
-  share: `<i class="fa-solid fa-utensils fa-icon" aria-hidden="true"></i>`,
-  cone: `<i class="fa-solid fa-ice-cream fa-icon" aria-hidden="true"></i>`,
-  fruit: `<i class="fa-solid fa-apple-whole fa-icon" aria-hidden="true"></i>`,
-  beer: `<i class="fa-solid fa-beer-mug-empty fa-icon" aria-hidden="true"></i>`,
-  drink: `<i class="fa-solid fa-glass-water fa-icon" aria-hidden="true"></i>`,
-  sandwich: `<i class="fa-solid fa-hotdog fa-icon" aria-hidden="true"></i>`,
-  coffee: `<i class="fa-solid fa-mug-hot fa-icon" aria-hidden="true"></i>`,
-  matcha: `<i class="fa-solid fa-leaf fa-icon" aria-hidden="true"></i>`,
-  plate: `<i class="fa-solid fa-bowl-food fa-icon" aria-hidden="true"></i>`,
-  camera: `<i class="fa-solid fa-camera fa-icon" aria-hidden="true"></i>`,
-  plus: `<i class="fa-solid fa-plus fa-icon" aria-hidden="true"></i>`
+  camera: `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 4h6l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.5zm3 4a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>`,
+  plus: `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>`
 };
 
 // ------------------------------------------------------------------
@@ -93,87 +105,87 @@ const ICONS = {
 const ALLERGENS = {
   gluten: {
     label: "Gluten",
-    icon: "fa-wheat-awn",
+    svg: '<g fill="#fff"><rect x="11.1" y="7" width="1.8" height="15" rx=".9"/><ellipse cx="12" cy="4.6" rx="1.8" ry="2.8"/><ellipse cx="9.2" cy="9.4" rx="1.8" ry="3" transform="rotate(-38 9.2 9.4)"/><ellipse cx="14.8" cy="9.4" rx="1.8" ry="3" transform="rotate(38 14.8 9.4)"/><ellipse cx="9.2" cy="14.4" rx="1.8" ry="3" transform="rotate(-38 9.2 14.4)"/><ellipse cx="14.8" cy="14.4" rx="1.8" ry="3" transform="rotate(38 14.8 14.4)"/></g>',
     color: "#c17a3d",
     keywords: ["pan", "harina", "trigo", "cerveza", "gluten", "pasta", "focaccia", "empanado", "rebozado", "cebada", "centeno", "masa", "molde"]
   },
   crustaceos: {
     label: "Crustáceos",
-    icon: "fa-shrimp",
+    svg: '<path fill="#fff" d="M5 7.5C9.5 4 18.5 4.5 19.5 11c.6 4-2.4 7-6.5 7H9.6l-2.4 2.2L6 17.4l3-.9h4c2.4 0 4-1.4 3.8-3.8C16.4 8.6 11 7.4 6.4 9.6z"/>',
     color: "#8a2e2e",
     keywords: ["gamba", "langostino", "cigala", "marisco", "camarón", "camaron"]
   },
   huevo: {
     label: "Huevo",
-    icon: "fa-egg",
+    svg: '<path fill="#fff" d="M12 2.8c-3.5 0-6.6 6.2-6.6 10.6a6.6 6.6 0 0 0 13.2 0C18.6 9 15.5 2.8 12 2.8z"/>',
     color: "#d9a400",
     keywords: ["huevo", "mayonesa", "alioli", "tortilla", "césar", "cesar"]
   },
   pescado: {
     label: "Pescado",
-    icon: "fa-fish",
+    svg: '<g fill="#fff"><ellipse cx="13.5" cy="12" rx="7" ry="4.6"/><path d="M2.5 7.2 8 12l-5.5 4.8z"/></g>',
     color: "#2f7d9e",
     keywords: ["atún", "atun", "salmón", "salmon", "anchoa", "bacalao", "merluza", "boquerón", "boqueron"]
   },
   moluscos: {
     label: "Moluscos",
-    icon: "fa-water",
+    svg: '<path fill="#fff" d="M12 3.6c-5.4 0-9 4.2-9 8.4L10 19.4h4L21 12c0-4.2-3.6-8.4-9-8.4z"/>',
     color: "#6b6f7a",
     keywords: ["pulpo", "calamar", "mejillón", "mejillon", "almeja", "sepia"]
   },
   cacahuete: {
     label: "Cacahuete",
-    icon: "fa-seedling",
+    svg: '<g fill="#fff"><circle cx="9.5" cy="9.5" r="4.6"/><circle cx="14.5" cy="14.5" r="4.6"/></g>',
     color: "#a9762d",
     keywords: ["cacahuete", "maní", "mani"]
   },
   frutos_cascara: {
     label: "Frutos de cáscara",
-    icon: "fa-tree",
+    svg: '<g fill="#fff"><path d="M4.6 10.4C4.6 6.8 8 4.4 12 4.4s7.4 2.4 7.4 6z"/><path d="M5.6 11.6h12.8c0 5.2-2.9 9.6-6.4 9.6s-6.4-4.4-6.4-9.6z"/><rect x="11.1" y="1.8" width="1.8" height="3.4" rx=".9"/></g>',
     color: "#5c3a21",
     keywords: ["almendra", "avellana", "nuez", "nueces", "pistacho", "anacardo", "piñón", "pinon", "macadamia", "nutella", "frutos secos", "frutos de cáscara"]
   },
   soja: {
     label: "Soja",
-    icon: "fa-leaf",
+    svg: '<g transform="rotate(-32 12 12)"><rect x="2.5" y="8.6" width="19" height="6.8" rx="3.4" fill="#fff"/></g>',
     color: "#6b8f3c",
     // Nutella lleva lecitina de soja.
     keywords: ["soja", "edamame", "nutella"]
   },
   lacteos: {
     label: "Lácteos",
-    icon: "fa-cheese",
+    svg: '<path fill="#fff" d="M9.4 2.5h5.2v2.8l2 3.3v11.4c0 .9-.7 1.5-1.5 1.5H8.9c-.8 0-1.5-.6-1.5-1.5V8.6l2-3.3z"/>',
     color: "#7a4fa0",
     // Nutella lleva leche desnatada en polvo.
     keywords: ["queso", "leche", "nata", "mantequilla", "yogur", "crema", "parmesano", "cheddar", "provolone", "edam", "gouda", "dulce de leche", "lácteos", "lacteos", "nutella"]
   },
   apio: {
     label: "Apio",
-    icon: "fa-carrot",
+    svg: '<g fill="#fff"><rect x="7" y="9" width="2.4" height="12" rx="1.2"/><rect x="10.8" y="7" width="2.4" height="14" rx="1.2"/><rect x="14.6" y="9" width="2.4" height="12" rx="1.2"/><ellipse cx="12" cy="5.2" rx="5" ry="2.6"/></g>',
     color: "#4f9153",
     keywords: ["apio"]
   },
   mostaza: {
     label: "Mostaza",
-    icon: "fa-bottle-droplet",
+    svg: '<path fill="#fff" d="M11 1.8h2l.5 3.2h1.3v2.4l1.6 1.9V21a.8.8 0 0 1-.8.8H8.4a.8.8 0 0 1-.8-.8V9.3l1.6-1.9V5h1.3z"/>',
     color: "#d4a017",
     keywords: ["mostaza", "mielmostaza", "miel mostaza", "miel-mostaza"]
   },
   sesamo: {
     label: "Sésamo",
-    icon: "fa-circle-dot",
+    svg: '<g fill="#fff"><ellipse cx="7.8" cy="9" rx="2.3" ry="3.6" transform="rotate(-28 7.8 9)"/><ellipse cx="16" cy="8.2" rx="2.3" ry="3.6" transform="rotate(26 16 8.2)"/><ellipse cx="11.8" cy="16.4" rx="2.3" ry="3.6" transform="rotate(8 11.8 16.4)"/></g>',
     color: "#b08d57",
     keywords: ["sésamo", "sesamo", "ajonjolí", "ajonjoli", "tahini"]
   },
   sulfitos: {
     label: "Sulfitos",
-    icon: "fa-wine-glass",
+    svg: '<path fill="#fff" d="M6.8 2.8h10.4c.2 5.3-1.7 8.6-4.3 9.2v6.4h3.4v2.6H7.7v-2.6h3.4V12c-2.6-.6-4.5-3.9-4.3-9.2z"/>',
     color: "#2f6fa8",
     keywords: ["vino", "sidra", "vinagre de vino", "tinto de verano", "sulfitos"]
   },
   altramuces: {
     label: "Altramuces",
-    icon: "fa-seedling",
+    svg: '<g fill="#fff"><ellipse cx="8" cy="10" rx="3.4" ry="4.4"/><ellipse cx="16" cy="10" rx="3.4" ry="4.4"/><ellipse cx="12" cy="17" rx="3.4" ry="4.4"/></g>',
     color: "#c9962c",
     keywords: ["altramuces", "lupino"]
   }
@@ -230,7 +242,7 @@ function renderAllergenIcons(ingredientsRaw) {
   // nombre al TOCAR el icono, en cualquier dispositivo.
   const iconsHtml = keys.map((key) => {
     const a = ALLERGENS[key];
-    return `<span class="allergen-icon" style="--allergen-color:${a.color}" data-label="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}" role="button" tabindex="0"><i class="fa-solid ${a.icon} fa-icon" aria-hidden="true"></i></span>`;
+    return `<span class="allergen-icon" style="--allergen-color:${a.color}" data-label="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}" role="button" tabindex="0"><svg viewBox="0 0 24 24" aria-hidden="true">${a.svg}</svg></span>`;
   }).join("");
   const halalHtml = isHalal ? `<span class="halal-tag">Halal</span>` : "";
   return `<div class="allergen-icons">${iconsHtml}${halalHtml}</div>`;
@@ -736,13 +748,14 @@ function renderNav(sections) {
   const nav = document.getElementById("section-nav");
   const visibleSections = getVisibleSections(sections);
   nav.innerHTML = visibleSections.map((s, i) => {
-    const color = SECTION_COLORS[i % SECTION_COLORS.length];
     const thumb = getSectionThumb(s);
+    // Si la foto de categoría del Sheet no carga, el listener global de
+    // errores de imagen la sustituye por el icono de marca (data-icon).
     const media = thumb
-      ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy" />`
-      : `<span class="cat-btn-icon">${ICONS[s.icon] || ICONS.plate}</span>`;
+      ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy" data-fallback-icon="${s.icon}" />`
+      : `<span class="cat-btn-icon">${brandIcon(s.icon)}</span>`;
     return `
-      <button type="button" class="cat-btn" data-target="${s.id}" style="--section-color:${color}">
+      <button type="button" class="cat-btn" data-target="${s.id}" style="${themeVars(i)};--i:${i}">
         <span class="cat-btn-thumb">${media}</span>
         <span class="cat-btn-label">${escapeHtml(s.title)}</span>
       </button>`;
@@ -770,7 +783,12 @@ function renderSkeleton() {
 // entrada cada vez que se activa.
 function activateSection(sectionId) {
   document.querySelectorAll(".cat-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.target === sectionId);
+    const isActive = btn.dataset.target === sectionId;
+    btn.classList.toggle("active", isActive);
+    // La categoría activa se centra en la barra horizontal del móvil.
+    if (isActive && typeof btn.scrollIntoView === "function") {
+      btn.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", inline: "center", block: "nearest" });
+    }
   });
 
   document.querySelectorAll(".menu-section").forEach((sec) => {
@@ -818,8 +836,8 @@ function renderSections(sections) {
   const visibleSections = getVisibleSections(sections);
 
   main.innerHTML = visibleSections.map((section, i) => {
-    const color = SECTION_COLORS[i % SECTION_COLORS.length];
-    const icon = ICONS[section.icon] || ICONS.plate;
+    const theme = themeVars(i);
+    const icon = brandIcon(section.icon);
     const showPhoto = Boolean(section.featuredImageAlt);
     const items = section.items || [];
 
@@ -868,7 +886,7 @@ function renderSections(sections) {
 
         return `
           ${groupHeader}
-          <div class="quick-row" data-id="${id}">
+          <div class="quick-row" data-id="${id}" style="--i:${idx}">
             ${logoHtml}
             <span class="quick-row-body">
               <span class="quick-row-name">${escapeHtml(item.name)}</span>
@@ -890,7 +908,7 @@ function renderSections(sections) {
       const hasPhoto = Boolean(item.image);
 
       return `
-        <article class="dish-card${hasPhoto ? "" : " no-photo"}" data-id="${id}">
+        <article class="dish-card${hasPhoto ? "" : " no-photo"}" data-id="${id}" style="--i:${idx}">
           ${hasPhoto ? `<div class="dish-photo">${photoBlock(item.image, item.name)}</div>` : ""}
           <div class="dish-content">
             <div class="dish-text">
@@ -919,10 +937,13 @@ function renderSections(sections) {
       : "";
 
     return `
-      <section class="menu-section" id="${escapeHtml(section.id)}" style="--section-color:${color}">
+      <section class="menu-section" id="${escapeHtml(section.id)}" style="${theme}">
         <div class="section-heading">
-          ${icon}
-          <h2>${escapeHtml(section.title)}</h2>
+          <div class="section-heading-text">
+            <span class="section-count">${items.length} ${items.length === 1 ? "producto" : "productos"}</span>
+            <h2>${escapeHtml(section.title)}</h2>
+          </div>
+          <span class="section-heading-icon">${icon}</span>
         </div>
         ${!isFlagship && showPhoto ? `<div class="section-photo">${photoBlock(section.featuredImage, section.featuredImageAlt)}</div>` : ""}
         ${bodyHtml}
@@ -1043,6 +1064,9 @@ function setupFlagshipSwitchers() {
       row.setAttribute("aria-checked", "true");
 
       priceEl.textContent = row.dataset.priceDisplay;
+      priceEl.classList.remove("pop");
+      void priceEl.offsetWidth; // reinicia la animación
+      priceEl.classList.add("pop");
       actionsSlot.dataset.actionsFor = row.dataset.id;
       actionsSlot.innerHTML = renderDishActions(row.dataset.id);
     }
@@ -1138,6 +1162,23 @@ async function init() {
     console.error("Error cargando el menú", err);
   }
 }
+
+// Imágenes que no cargan (una foto del Sheet borrada, un logo caído):
+// la foto de categoría pasa a su icono de marca y el logo de bebida se
+// quita, en vez de dejar el icono de imagen rota.
+document.addEventListener("error", (e) => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement)) return;
+  if (img.dataset.fallbackIcon) {
+    const span = document.createElement("span");
+    span.className = "cat-btn-icon";
+    span.innerHTML = brandIcon(img.dataset.fallbackIcon);
+    img.replaceWith(span);
+    return;
+  }
+  const logo = img.closest(".quick-row-logo");
+  if (logo) logo.remove();
+}, true);
 
 setupCartUI();
 init();
